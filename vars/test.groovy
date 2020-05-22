@@ -16,7 +16,7 @@ def call(body) {
         stages {
             stage('Example') {
                 steps {
-                    echo 'start'
+                    echo body
                 }
             }
         }
