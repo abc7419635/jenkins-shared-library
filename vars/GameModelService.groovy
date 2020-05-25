@@ -1,3 +1,9 @@
+/*
+
+@Library("sharelib") _
+GameModelService()
+
+*/
 def call(body) {
     pipeline {
         agent none
