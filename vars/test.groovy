@@ -15,6 +15,9 @@ def call(body) {
         
         stages {
             stage('Sync Perforce') {
+                when {
+                    environment name: 'CHOICE', value: 'Two'
+                }
                 agent {
                     label 'ServerModelBuildPC'
                 }
