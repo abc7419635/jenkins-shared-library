@@ -64,8 +64,7 @@ def call(body) {
                 set FILEPATH=%P4RootDir%\\GameModel\\DeploymentPack\\Release_%P4Stream:~13%_%BUILD_NUMBER%_%x%_%y%
                 7z a %FILEPATH% %P4RootDir%\\GameModel\\Model.Server\\Deployment
 
-                set BOTO_CONFIG=D:\\JenkinsRemoteRoot\\.boto
-                gsutil cp %FILEPATH%.7z gs://server_model_release/
+                gsutil cp %FILEPATH%.7z %GSPath%'
                 '''
         }
 
