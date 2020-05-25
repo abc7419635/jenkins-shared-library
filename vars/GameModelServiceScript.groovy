@@ -44,6 +44,7 @@ def call(body) {
         stage('Build Services') {
             dir(env.P4RootDir) {
                 bat '''
+                set AABBCC=AABBCC
                 cd GameModel\\Model.Server
                 call Deployment\\Bot\\ClearLogs.bat
                 call Deployment\\DeployCore\\Instances\\ClearLogs.bat
@@ -51,7 +52,7 @@ def call(body) {
                 '''
             }
             script{
-                env.AABBCC='AABBCC'
+                println env.AABBCC
             }
         }
 
