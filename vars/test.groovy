@@ -1,6 +1,6 @@
 def call(body) {
     node('ServerModelBuildPC') {
-        /*stage('Sync Perforce') {
+        stage('Sync Perforce') {
             dir(env.GameModelPath) {
                 //checkout perforce(credential: 'programmer', populate: syncOnly(force: false, have: true, modtime: false, quiet: false, revert: false), workspace: manualSpec(charset: 'utf8', name: 'RD_DailyCCB', pinHost: true, spec: clientSpec(allwrite: false, backup: true, changeView: '', clobber: true, compress: false, line: 'UNIX', locked: false, modtime: false, rmdir: true, serverID: '', streamName: '//GD2ReDream/RD_DailyCCB', type: 'WRITABLE', view: '')))
                 checkout perforce(credential: 'programmer', populate: syncOnly(force: false, have: true, modtime: false, quiet: false, revert: false), workspace: manualSpec(charset: 'utf8', name: 'RD_GameModel', pinHost: true, spec: clientSpec(allwrite: false, backup: true, changeView: '', clobber: true, compress: false, line: 'UNIX', locked: false, modtime: false, rmdir: true, serverID: '', streamName: env.P4Stream, type: 'WRITABLE', view: '')))
@@ -33,13 +33,12 @@ def call(body) {
                 set BOTO_CONFIG=D:\\JenkinsRemoteRoot\\.boto
                 gsutil cp %FILEPATH%.7z gs://server_model_release/
                 '''
-        }*/
+        }
 
-        echo env.Deploy
         if(env.Deploy=='true')
         {
             echo 'true'
-            /*stage('DeployToStaging') {
+            stage('DeployToStaging') {
                 bat '''
                     set TAR_PATH=D:\\Docker\\service\\ansible\\volume\\ansible\\Deployment.tar
                     del %TAR_PATH%&
@@ -48,7 +47,7 @@ def call(body) {
                     docker exec ansible ansible-playbook ./ansible/playbooks/staging/start-services.yml -vvv
                     python D:\\_Pythan\\ReportSuccess.py StagingServerStart
                     '''
-            }*/
+            }
         }
     }
 }
