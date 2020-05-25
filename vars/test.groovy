@@ -64,10 +64,11 @@ def call(body) {
                                     set y=%time:~0,2%%time:~3,2%%time:~6,2%
                                 )
 
-                                7z a %GameModelPath%\\GameModel\\DeploymentPack\\Release_%P4Stream:~13%_%BUILD_NUMBER%_%x%_%y% %GameModelPath%\\GameModel\\Model.Server\\Deployment
+                                set FILEPATH=%GameModelPath%\\GameModel\\DeploymentPack\\Release_%P4Stream:~13%_%BUILD_NUMBER%_%x%_%y%
+                                7z a %FILEPATH% %GameModelPath%\\GameModel\\Model.Server\\Deployment
 
                                 set BOTO_CONFIG=D:\\JenkinsRemoteRoot\\.boto
-                                gsutil cp %GameModelPath%\\GameModel\\DeploymentPack\\Release_%P4Stream:~13%_%BUILD_NUMBER%_%x%_%y%.7z gs://server_model_release/
+                                gsutil cp %FILEPATH%.7z gs://server_model_release/
                                 '''
                         }
                     }
