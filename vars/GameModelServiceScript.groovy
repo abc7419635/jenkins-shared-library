@@ -4,15 +4,15 @@
 pipeline {
     agent none
     parameters {
-            booleanParam(name: 'Refresh', defaultValue: false, description: '')
-            booleanParam(name: 'SkipP4Update', defaultValue: false, description: '')
-            string(name: 'P4Credential', defaultValue: 'programmer', description: '')
-            string(name: 'P4Workspace', defaultValue: 'RD_GameModel', description: '')
-            choice(name: 'P4Stream', choices: ['//GD2ReDream/GameModel', '//GD2ReDream/RD_GameModelCCB'], description: '')
-            string(name: 'P4RootDir', defaultValue: 'D:\\RD_GameModel', description: '')
-            string(name: 'BOTO_CONFIG', defaultValue: 'D:\\JenkinsRemoteRoot\\.boto', description: '')
-            string(name: 'GSPath', defaultValue: 'gs://server_model_release/', description: '')
-            booleanParam(name: 'DeployToStaging', defaultValue: false, description: '')
+        booleanParam(name: 'Refresh', defaultValue: false, description: '')
+        booleanParam(name: 'SkipP4Update', defaultValue: false, description: '')
+        string(name: 'P4Credential', defaultValue: 'programmer', description: '')
+        string(name: 'P4Workspace', defaultValue: 'RD_GameModel', description: '')
+        choice(name: 'P4Stream', choices: ['//GD2ReDream/GameModel', '//GD2ReDream/RD_GameModelCCB'], description: '')
+        string(name: 'P4RootDir', defaultValue: 'D:\\RD_GameModel', description: '')
+        string(name: 'BOTO_CONFIG', defaultValue: 'D:\\JenkinsRemoteRoot\\.boto', description: '')
+        string(name: 'GSPath', defaultValue: 'gs://server_model_release/', description: '')
+        booleanParam(name: 'DeployToStaging', defaultValue: false, description: '')
     }
     
     stages {
