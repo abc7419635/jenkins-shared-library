@@ -5,6 +5,7 @@ pipeline {
     agent none
     parameters {
             booleanParam(name: 'Refresh', defaultValue: false, description: '')
+            booleanParam(name: 'SkipP4Update', defaultValue: false, description: '')
             string(name: 'P4Credential', defaultValue: 'programmer', description: '')
             string(name: 'P4Workspace', defaultValue: 'RD_GameModel', description: '')
             choice(name: 'P4Stream', choices: ['//GD2ReDream/GameModel', '//GD2ReDream/RD_GameModelCCB'], description: '')
@@ -31,10 +32,13 @@ if(env.Refresh=='false')
 
 def call(body) {
     node('ServerModelBuildPC') {
-        stage('Sync Perforce') {
-            dir(env.P4RootDir) {
-                //checkout perforce(credential: 'programmer', populate: syncOnly(force: false, have: true, modtime: false, quiet: false, revert: false), workspace: manualSpec(charset: 'utf8', name: 'RD_DailyCCB', pinHost: true, spec: clientSpec(allwrite: false, backup: true, changeView: '', clobber: true, compress: false, line: 'UNIX', locked: false, modtime: false, rmdir: true, serverID: '', streamName: '//GD2ReDream/RD_DailyCCB', type: 'WRITABLE', view: '')))
-                checkout perforce(credential: env.P4Credential, populate: syncOnly(force: false, have: true, modtime: false, quiet: false, revert: false), workspace: manualSpec(charset: 'utf8', name: env.P4Workspace, pinHost: true, spec: clientSpec(allwrite: false, backup: true, changeView: '', clobber: true, compress: false, line: 'UNIX', locked: false, modtime: false, rmdir: true, serverID: '', streamName: env.P4Stream, type: 'WRITABLE', view: '')))
+        if(env.SkipP4Update=='true')
+        {
+            stage('Sync Perforce') {
+                dir(env.P4RootDir) {
+                    //checkout perforce(credential: 'programmer', populate: syncOnly(force: false, have: true, modtime: false, quiet: false, revert: false), workspace: manualSpec(charset: 'utf8', name: 'RD_DailyCCB', pinHost: true, spec: clientSpec(allwrite: false, backup: true, changeView: '', clobber: true, compress: false, line: 'UNIX', locked: false, modtime: false, rmdir: true, serverID: '', streamName: '//GD2ReDream/RD_DailyCCB', type: 'WRITABLE', view: '')))
+                    checkout perforce(credential: env.P4Credential, populate: syncOnly(force: false, have: true, modtime: false, quiet: false, revert: false), workspace: manualSpec(charset: 'utf8', name: env.P4Workspace, pinHost: true, spec: clientSpec(allwrite: false, backup: true, changeView: '', clobber: true, compress: false, line: 'UNIX', locked: false, modtime: false, rmdir: true, serverID: '', streamName: env.P4Stream, type: 'WRITABLE', view: '')))
+                }
             }
         }
 
