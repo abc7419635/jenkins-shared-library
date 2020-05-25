@@ -36,10 +36,8 @@ def call(body) {
     node('ServerModelBuildPC') {
         stage('Sync Perforce') {
             dir(env.P4RootDir) {
-                bat 'exit 1'
-                bat 'exit 0'
                 //checkout perforce(credential: 'programmer', populate: syncOnly(force: false, have: true, modtime: false, quiet: false, revert: false), workspace: manualSpec(charset: 'utf8', name: 'RD_DailyCCB', pinHost: true, spec: clientSpec(allwrite: false, backup: true, changeView: '', clobber: true, compress: false, line: 'UNIX', locked: false, modtime: false, rmdir: true, serverID: '', streamName: '//GD2ReDream/RD_DailyCCB', type: 'WRITABLE', view: '')))
-                //checkout perforce(credential: env.P4Credential, populate: syncOnly(force: false, have: true, modtime: false, quiet: false, revert: false), workspace: manualSpec(charset: 'utf8', name: env.P4Workspace, pinHost: true, spec: clientSpec(allwrite: false, backup: true, changeView: '', clobber: true, compress: false, line: 'UNIX', locked: false, modtime: false, rmdir: true, serverID: '', streamName: env.P4Stream, type: 'WRITABLE', view: '')))
+                checkout perforce(credential: env.P4Credential, populate: syncOnly(force: false, have: true, modtime: false, quiet: false, revert: false), workspace: manualSpec(charset: 'utf8', name: env.P4Workspace, pinHost: true, spec: clientSpec(allwrite: false, backup: true, changeView: '', clobber: true, compress: false, line: 'UNIX', locked: false, modtime: false, rmdir: true, serverID: '', streamName: env.P4Stream, type: 'WRITABLE', view: '')))
             }
         }
 
@@ -50,12 +48,14 @@ def call(body) {
                 call Deployment\\Bot\\ClearLogs.bat
                 call Deployment\\DeployCore\\Instances\\ClearLogs.bat
                 "..\\Tools\\ExcelParser\\MSBuild\\15.0\\Bin\\MSBuild.exe" "GameModel.sln" -p:Configuration=Release -restore -t:rebuild
+                set AABBCC=AABBCC
                 '''
             }
         }
 
         stage('CompressUpload') {
             bat '''
+                echo %AABBCC%
                 set x=%date:~0,4%%date:~5,2%%date:~8,2%
                 IF "%time:~0,1%" == " " (
                     set y=0%time:~1,1%%time:~3,2%%time:~6,2%
