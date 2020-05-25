@@ -8,7 +8,7 @@ def call(body) {
                 //choice(name: 'CHOICE', choices: ['One', 'Two', 'Three'], description: 'Pick something')
                 //${params.CHOICE}
                 //password(name: 'PASSWORD', defaultValue: 'SECRET', description: 'Enter a password')
-                booleanParam(name: 'Refresh', defaultValue: true, description: '')
+                booleanParam(name: 'Refresh', defaultValue: false, description: '')
                 string(name: 'GameModelPath', defaultValue: 'D:\\RD_GameModel', description: 'GameModel Path')
                 booleanParam(name: 'Deploy', defaultValue: false, description: 'deploy to staging')
         }
@@ -24,6 +24,9 @@ def call(body) {
             }
 
             stage('Run Jenkinsfile') {
+                when {
+                    environment name: 'Refresh', value: 'false'
+                }
                 agent {
                     label 'ServerModelBuildPC'
                 }
