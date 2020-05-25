@@ -2,17 +2,17 @@ def call(body) {
     pipeline {
         agent none
         parameters {
-                string(name: 'PERSON', defaultValue: 'Mr Jenkins', description: 'Who should I say hello to?')
+                //string(name: 'PERSON', defaultValue: 'Mr Jenkins', description: 'Who should I say hello to?')
         
-                text(name: 'BIOGRAPHY', defaultValue: '', description: 'Enter some information about the person')
+                //text(name: 'BIOGRAPHY', defaultValue: '', description: 'Enter some information about the person')
         
-                booleanParam(name: 'TOGGLE', defaultValue: true, description: 'Toggle this value')
+                //booleanParam(name: 'TOGGLE', defaultValue: true, description: 'Toggle this value')
         
-                choice(name: 'CHOICE', choices: ['One', 'Two', 'Three'], description: 'Pick something')
+                //choice(name: 'CHOICE', choices: ['One', 'Two', 'Three'], description: 'Pick something')
                 //${params.CHOICE}
                 password(name: 'PASSWORD', defaultValue: 'SECRET', description: 'Enter a password')
 
-                string(name: 'GameModelPath', defaultValue: 'D:\\RD_GameModel', description: 'GameModel Path')
+                //string(name: 'GameModelPath', defaultValue: 'D:\\RD_GameModel', description: 'GameModel Path')
         }
         
         stages {
@@ -44,6 +44,26 @@ def call(body) {
                         "..\\Tools\\ExcelParser\\MSBuild\\15.0\\Bin\\MSBuild.exe" "GameModel.sln" -p:Configuration=Release -restore -t:rebuild
                         '''
                     }
+                }
+            }
+            stage('CompressUpload') {
+                agent {
+                    label 'ServerModelBuildPC'
+                }
+                steps {
+                    bat '''
+                        set x=%date:~0,4%%date:~5,2%%date:~8,2%
+                        IF "%time:~0,1%" == " " (
+                            set y=0%time:~1,1%%time:~3,2%%time:~6,2%
+                        )ELSE (
+                            set y=%time:~0,2%%time:~3,2%%time:~6,2%
+                        )
+
+                        7z a %GameModelPath%\\GameModel\\DeploymentPack\\Release_%BUILD_NUMBER%_%x%_%y% %GameModelPath%\\GameModel\\Model.Server\\Deployment
+
+                        set BOTO_CONFIG=D:\\JenkinsRemoteRoot\\.boto
+                        gsutil cp %GameModelPath%\\GameModel\\DeploymentPack\\Release_%BUILD_NUMBER%_%x%_%y%.7z gs://server_model_release/
+                        '''
                 }
             }
         }
