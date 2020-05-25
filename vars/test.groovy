@@ -7,7 +7,7 @@ def call(body) {
                 //booleanParam(name: 'TOGGLE', defaultValue: true, description: 'Toggle this value')        
                 //choice(name: 'CHOICE', choices: ['One', 'Two', 'Three'], description: 'Pick something')
                 //${params.CHOICE}
-                password(name: 'PASSWORD', defaultValue: 'SECRET', description: 'Enter a password')
+                //password(name: 'PASSWORD', defaultValue: 'SECRET', description: 'Enter a password')
                 booleanParam(name: 'OnlyRefresh', defaultValue: false, description: '')
                 string(name: 'GameModelPath', defaultValue: 'D:\\RD_GameModel', description: 'GameModel Path')
                 booleanParam(name: 'Deploy', defaultValue: false, description: 'deploy to staging')
@@ -39,9 +39,6 @@ def call(body) {
             }
 
             stage('Build Services') {
-                agent {
-                    label 'ServerModelBuildPC'
-                }
                 steps {
                     dir("${params.GameModelPath}") {
                         bat '''
@@ -55,9 +52,6 @@ def call(body) {
             }
 
             stage('CompressUpload') {
-                agent {
-                    label 'ServerModelBuildPC'
-                }
                 steps {
                     bat '''
                         set x=%date:~0,4%%date:~5,2%%date:~8,2%
