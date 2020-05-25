@@ -44,21 +44,16 @@ def call(body) {
         stage('Build Services') {
             dir(env.P4RootDir) {
                 bat '''
-                set AABBCC=AABBCC
                 cd GameModel\\Model.Server
                 call Deployment\\Bot\\ClearLogs.bat
                 call Deployment\\DeployCore\\Instances\\ClearLogs.bat
                 "..\\Tools\\ExcelParser\\MSBuild\\15.0\\Bin\\MSBuild.exe" "GameModel.sln" -p:Configuration=Release -restore -t:rebuild
                 '''
             }
-            script{
-                println env.AABBCC
-            }
         }
 
         stage('CompressUpload') {
             bat '''
-                echo %AABBCC%
                 set x=%date:~0,4%%date:~5,2%%date:~8,2%
                 IF "%time:~0,1%" == " " (
                     set y=0%time:~1,1%%time:~3,2%%time:~6,2%
