@@ -10,9 +10,11 @@ def call(body) {
         
                 //choice(name: 'CHOICE', choices: ['One', 'Two', 'Three'], description: 'Pick something')
                 //${params.CHOICE}
-                password(name: 'PASSWORD', defaultValue: 'SECRET', description: 'Enter a password')
+                //password(name: 'PASSWORD', defaultValue: 'SECRET', description: 'Enter a password')
 
-                //string(name: 'GameModelPath', defaultValue: 'D:\\RD_GameModel', description: 'GameModel Path')
+                string(name: 'GameModelPath', defaultValue: 'D:\\RD_GameModel', description: 'GameModel Path')
+
+                booleanParam(name: 'Deploy', defaultValue: false, description: 'deploy to staging')
         }
         
         stages {
