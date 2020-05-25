@@ -32,7 +32,7 @@ if(env.Refresh=='false')
 
 def call(body) {
     node('ServerModelBuildPC') {
-        if(env.SkipP4Update=='true')
+        if(env.SkipP4Update=='false')
         {
             stage('Sync Perforce') {
                 dir(env.P4RootDir) {
@@ -71,7 +71,6 @@ def call(body) {
 
         if(env.DeployToStaging=='true')
         {
-            echo 'true'
             stage('DeployToStaging') {
                 bat '''
                     set TAR_PATH=D:\\Docker\\service\\ansible\\volume\\ansible\\Deployment.tar
