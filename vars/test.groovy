@@ -1,6 +1,6 @@
 def call(body) {
     pipeline {
-        agent any
+        agent none
         parameters {
                 string(name: 'PERSON', defaultValue: 'Mr Jenkins', description: 'Who should I say hello to?')
         
