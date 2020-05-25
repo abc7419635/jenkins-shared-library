@@ -5,7 +5,7 @@ pipeline {
     agent none
     parameters {
             booleanParam(name: 'Refresh', defaultValue: false, description: '')
-            string(name: 'P4Root', defaultValue: 'D:\\RD_GameModel', description: '')
+            string(name: 'P4RootDir', defaultValue: 'D:\\RD_GameModel', description: '')
             choice(name: 'P4Stream', choices: ['//GD2ReDream/GameModel', '//GD2ReDream/RD_GameModelCCB'], description: '')
             booleanParam(name: 'Deploy', defaultValue: false, description: '')
 
@@ -35,14 +35,14 @@ if(env.Refresh=='false')
 def call(body) {
     node('ServerModelBuildPC') {
         stage('Sync Perforce') {
-            dir(env.P4Root) {
+            dir(env.P4RootDir) {
                 //checkout perforce(credential: 'programmer', populate: syncOnly(force: false, have: true, modtime: false, quiet: false, revert: false), workspace: manualSpec(charset: 'utf8', name: 'RD_DailyCCB', pinHost: true, spec: clientSpec(allwrite: false, backup: true, changeView: '', clobber: true, compress: false, line: 'UNIX', locked: false, modtime: false, rmdir: true, serverID: '', streamName: '//GD2ReDream/RD_DailyCCB', type: 'WRITABLE', view: '')))
-                checkout perforce(credential: 'programmer', populate: syncOnly(force: false, have: true, modtime: false, quiet: false, revert: false), workspace: manualSpec(charset: 'utf8', name: 'RD_GameModel', pinHost: true, spec: clientSpec(allwrite: false, backup: true, changeView: '', clobber: true, compress: false, line: 'UNIX', locked: false, modtime: false, rmdir: true, serverID: '', streamName: env.P4Stream, type: 'WRITABLE', view: '')))
+                checkout perforce(credential: env.P4Credential, populate: syncOnly(force: false, have: true, modtime: false, quiet: false, revert: false), workspace: manualSpec(charset: 'utf8', name: env.P4Workspace, pinHost: true, spec: clientSpec(allwrite: false, backup: true, changeView: '', clobber: true, compress: false, line: 'UNIX', locked: false, modtime: false, rmdir: true, serverID: '', streamName: env.P4Stream, type: 'WRITABLE', view: '')))
             }
         }
 
         stage('Build Services') {
-            dir(env.P4Root) {
+            dir(env.P4RootDir) {
                 bat '''
                 cd GameModel\\Model.Server
                 call Deployment\\Bot\\ClearLogs.bat
@@ -61,8 +61,8 @@ def call(body) {
                     set y=%time:~0,2%%time:~3,2%%time:~6,2%
                 )
 
-                set FILEPATH=%P4Root%\\GameModel\\DeploymentPack\\Release_%P4Stream:~13%_%BUILD_NUMBER%_%x%_%y%
-                7z a %FILEPATH% %P4Root%\\GameModel\\Model.Server\\Deployment
+                set FILEPATH=%P4RootDir%\\GameModel\\DeploymentPack\\Release_%P4Stream:~13%_%BUILD_NUMBER%_%x%_%y%
+                7z a %FILEPATH% %P4RootDir%\\GameModel\\Model.Server\\Deployment
 
                 set BOTO_CONFIG=D:\\JenkinsRemoteRoot\\.boto
                 gsutil cp %FILEPATH%.7z gs://server_model_release/
@@ -76,7 +76,7 @@ def call(body) {
                 bat '''
                     set TAR_PATH=D:\\Docker\\service\\ansible\\volume\\ansible\\Deployment.tar
                     del %TAR_PATH%&
-                    call 7z a -ttar %TAR_PATH% %P4Root%\\GameModel\\Model.Server\\Deployment
+                    call 7z a -ttar %TAR_PATH% %P4RootDir%\\GameModel\\Model.Server\\Deployment
                     docker exec ansible ansible-playbook ./ansible/playbooks/staging/update-services.yml
                     docker exec ansible ansible-playbook ./ansible/playbooks/staging/start-services.yml -vvv
                     python D:\\_Pythan\\ReportSuccess.py StagingServerStart
