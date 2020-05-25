@@ -1,4 +1,7 @@
 def call(body) {
+    pipeline {
+        agent none
+                
         stages {
             stage('Read Jenkinsfile') {
                 when {
@@ -76,4 +79,5 @@ def call(body) {
                 }
             }
         }
+    }
 }
