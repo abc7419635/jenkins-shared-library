@@ -19,9 +19,6 @@ pipeline {
     
     stages {
         stage('Init Parameters') {
-            when {
-                environment name: 'Refresh', value: 'true'
-            }
             steps {
                 echo 'Init Parameters'
             }
