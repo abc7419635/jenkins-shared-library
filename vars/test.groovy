@@ -9,9 +9,9 @@ def call(body) {
                 //${params.CHOICE}
                 //password(name: 'PASSWORD', defaultValue: 'SECRET', description: 'Enter a password')
                 booleanParam(name: 'Refresh', defaultValue: false, description: '')
-                string(name: 'GameModelPath', defaultValue: 'D:\\RD_GameModel', description: 'GameModel Path')
-                choice(name: 'P4Stream', choices: ['//GD2ReDream/GameModel', '//GD2ReDream/RD_GameModelCCB'], description: 'Pick something')
-                booleanParam(name: 'Deploy', defaultValue: false, description: 'deploy to staging')
+                string(name: 'GameModelPath', defaultValue: 'D:\\RD_GameModel', description: '')
+                choice(name: 'P4Stream', choices: ['//GD2ReDream/GameModel', '//GD2ReDream/RD_GameModelCCB'], description: '')
+                booleanParam(name: 'Deploy', defaultValue: false, description: '')
         }
         
         stages {
@@ -64,13 +64,14 @@ def call(body) {
                                     set y=%time:~0,2%%time:~3,2%%time:~6,2%
                                 )
 
-                                7z a %GameModelPath%\\GameModel\\DeploymentPack\\Release_%BUILD_NUMBER%_%x%_%y% %GameModelPath%\\GameModel\\Model.Server\\Deployment
+                                7z a %GameModelPath%\\GameModel\\DeploymentPack\\Release_%P4Stream:~13%_%BUILD_NUMBER%_%x%_%y% %GameModelPath%\\GameModel\\Model.Server\\Deployment
 
                                 set BOTO_CONFIG=D:\\JenkinsRemoteRoot\\.boto
-                                gsutil cp %GameModelPath%\\GameModel\\DeploymentPack\\Release_%BUILD_NUMBER%_%x%_%y%.7z gs://server_model_release/
+                                gsutil cp %GameModelPath%\\GameModel\\DeploymentPack\\Release_%P4Stream:~13%_%BUILD_NUMBER%_%x%_%y%.7z gs://server_model_release/
                                 '''
                         }
                     }
+
                     stage('DeployToStaging') {
                         when {
                             environment name: 'Deploy', value: 'true'
