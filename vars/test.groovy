@@ -2,19 +2,14 @@ def call(body) {
     pipeline {
         agent none
         parameters {
-                //string(name: 'PERSON', defaultValue: 'Mr Jenkins', description: 'Who should I say hello to?')
-        
-                //text(name: 'BIOGRAPHY', defaultValue: '', description: 'Enter some information about the person')
-        
-                //booleanParam(name: 'TOGGLE', defaultValue: true, description: 'Toggle this value')
-        
+                //string(name: 'PERSON', defaultValue: 'Mr Jenkins', description: 'Who should I say hello to?')        
+                //text(name: 'BIOGRAPHY', defaultValue: '', description: 'Enter some information about the person')        
+                //booleanParam(name: 'TOGGLE', defaultValue: true, description: 'Toggle this value')        
                 //choice(name: 'CHOICE', choices: ['One', 'Two', 'Three'], description: 'Pick something')
                 //${params.CHOICE}
-                //password(name: 'PASSWORD', defaultValue: 'SECRET', description: 'Enter a password')
+                password(name: 'PASSWORD', defaultValue: 'SECRET', description: 'Enter a password')
                 booleanParam(name: 'OnlyRefresh', defaultValue: false, description: '')
-
                 string(name: 'GameModelPath', defaultValue: 'D:\\RD_GameModel', description: 'GameModel Path')
-
                 booleanParam(name: 'Deploy', defaultValue: false, description: 'deploy to staging')
         }
         
