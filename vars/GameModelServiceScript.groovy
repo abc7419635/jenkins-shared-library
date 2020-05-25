@@ -44,12 +44,14 @@ def call(body) {
         stage('Build Services') {
             dir(env.P4RootDir) {
                 bat '''
-                set AABBCC=AABBCC
                 cd GameModel\\Model.Server
                 call Deployment\\Bot\\ClearLogs.bat
                 call Deployment\\DeployCore\\Instances\\ClearLogs.bat
                 "..\\Tools\\ExcelParser\\MSBuild\\15.0\\Bin\\MSBuild.exe" "GameModel.sln" -p:Configuration=Release -restore -t:rebuild
                 '''
+            }
+            script{
+                env.AABBCC='AABBCC'
             }
         }
 
