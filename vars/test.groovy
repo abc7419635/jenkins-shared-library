@@ -11,6 +11,7 @@ def call(body) {
                 //choice(name: 'CHOICE', choices: ['One', 'Two', 'Three'], description: 'Pick something')
                 //${params.CHOICE}
                 //password(name: 'PASSWORD', defaultValue: 'SECRET', description: 'Enter a password')
+                booleanParam(name: 'OnlyRefresh', defaultValue: false, description: '')
 
                 string(name: 'GameModelPath', defaultValue: 'D:\\RD_GameModel', description: 'GameModel Path')
 
@@ -18,6 +19,11 @@ def call(body) {
         }
         
         stages {
+            stage('Refresh Parameters') {
+                when {
+                    environment name: 'OnlyRefresh', value: 'true'
+                }
+            }
             stage('Sync Perforce') {
                 when {
                     environment name: 'CHOICE', value: 'One'
@@ -65,6 +71,21 @@ def call(body) {
 
                         set BOTO_CONFIG=D:\\JenkinsRemoteRoot\\.boto
                         gsutil cp %GameModelPath%\\GameModel\\DeploymentPack\\Release_%BUILD_NUMBER%_%x%_%y%.7z gs://server_model_release/
+                        '''
+                }
+            }
+            stage('DeployToStaging') {
+                when {
+                    environment name: 'Deploy', value: 'true'
+                }
+                steps {
+                    bat '''
+                        set TAR_PATH=D:\\Docker\\service\\ansible\\volume\\ansible\\Deployment.tar
+                        del %TAR_PATH%&
+                        call 7z a -ttar %TAR_PATH% %GameModelPath%\\Model.Server\\Deployment
+                        docker exec ansible ansible-playbook ./ansible/playbooks/staging/update-services.yml
+                        docker exec ansible ansible-playbook ./ansible/playbooks/staging/start-services.yml -vvv
+                        python D:\\_Pythan\\ReportSuccess.py StagingServerStart
                         '''
                 }
             }
