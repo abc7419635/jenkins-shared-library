@@ -4,7 +4,8 @@
 pipeline {
     agent none
     parameters {
-        string(name: 'WORKDIR', defaultValue: 'E:\\_ReDreamArchive', description: '')
+        booleanParam(name: 'Refresh', defaultValue: false, description: '')
+        string(name: 'WORKDIR', defaultValue: 'E:\\_ReDreamArchive\\', description: '')
         string(name: 'DATAPATH', defaultValue: '', description: '')
         string(name: '7ZNAME', defaultValue: '', description: '')
     }
@@ -28,7 +29,7 @@ def call(body) {
     node('RemoteBuildPC') {        
         stage('CompressUpload') {
             bat '''
-                7z a %WORKDIR%\\%7ZNAME% %DATAPATH%
+                7z a %WORKDIR%%7ZNAME% %DATAPATH%
                 '''
         }
     }
