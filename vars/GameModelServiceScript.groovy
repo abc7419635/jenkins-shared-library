@@ -42,7 +42,7 @@ def call(body) {
             }
             else
             {
-                echo 'Skip Sync Perforce'
+                unstable 'Skip Sync Perforce'
             }
         }        
 
