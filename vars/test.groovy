@@ -23,8 +23,21 @@ def call(body) {
                 }
             }
         
-
             stage('Run Jenkinsfile') {
+                when {
+                    environment name: 'Refresh', value: 'false'
+                }
+                stage('Build') {
+                    echo "Build"
+                }
+                stage('Test') {
+                    echo "Test"
+                }
+                stage('Deploy') {
+                    echo "Deploy"
+                }
+            }
+            /*stage('Run Jenkinsfile') {
                 when {
                     environment name: 'Refresh', value: 'false'
                 }
@@ -87,7 +100,7 @@ def call(body) {
                             '''
                     }
                 }
-            }
+            }*/
         }
     }
 }
