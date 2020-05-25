@@ -19,7 +19,7 @@ def call(body) {
                     environment name: 'Refresh', value: 'true'
                 }
                 steps {
-                    error("Ended pipeline early.")     
+                    echo("Read jenkinsfile finish.")     
                 }
             }
 
