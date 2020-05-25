@@ -36,7 +36,7 @@ def call(body) {
         }*/
 
         echo env.Deploy
-        if(env.Deploy)
+        if(env.Deploy=='false')
         {
             echo 'true'
             /*stage('DeployToStaging') {
