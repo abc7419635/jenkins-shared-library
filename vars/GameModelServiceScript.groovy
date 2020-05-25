@@ -5,16 +5,13 @@ pipeline {
     agent none
     parameters {
             booleanParam(name: 'Refresh', defaultValue: false, description: '')
-            string(name: 'P4RootDir', defaultValue: 'D:\\RD_GameModel', description: '')
+            string(name: 'P4Credential', defaultValue: 'programmer', description: '')
+            string(name: 'P4Workspace', defaultValue: 'RD_GameModel', description: '')
             choice(name: 'P4Stream', choices: ['//GD2ReDream/GameModel', '//GD2ReDream/RD_GameModelCCB'], description: '')
-            booleanParam(name: 'Deploy', defaultValue: false, description: '')
-
-            //string(name: 'PERSON', defaultValue: 'Mr Jenkins', description: 'Who should I say hello to?')        
-            //text(name: 'BIOGRAPHY', defaultValue: '', description: 'Enter some information about the person')        
-            //booleanParam(name: 'TOGGLE', defaultValue: true, description: 'Toggle this value')        
-            //choice(name: 'CHOICE', choices: ['One', 'Two', 'Three'], description: 'Pick something')
-            //${params.CHOICE}
-            //password(name: 'PASSWORD', defaultValue: 'SECRET', description: 'Enter a password')
+            string(name: 'P4RootDir', defaultValue: 'D:\\RD_GameModel', description: '')
+            string(name: 'BOTO_CONFIG', defaultValue: 'D:\\JenkinsRemoteRoot\\.boto', description: '')
+            string(name: 'GSPath', defaultValue: 'gs://server_model_release/', description: '')
+            booleanParam(name: 'DeployToStaging', defaultValue: false, description: '')
     }
     
     stages {
@@ -68,7 +65,7 @@ def call(body) {
                 '''
         }
 
-        if(env.Deploy=='true')
+        if(env.DeployToStaging=='true')
         {
             echo 'true'
             stage('DeployToStaging') {
