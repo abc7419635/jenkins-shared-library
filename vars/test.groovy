@@ -35,15 +35,18 @@ def call(body) {
                 '''
         }
 
-        stage('DeployToStaging') {
-            bat '''
-                set TAR_PATH=D:\\Docker\\service\\ansible\\volume\\ansible\\Deployment.tar
-                del %TAR_PATH%&
-                call 7z a -ttar %TAR_PATH% %GameModelPath%\\Model.Server\\Deployment
-                docker exec ansible ansible-playbook ./ansible/playbooks/staging/update-services.yml
-                docker exec ansible ansible-playbook ./ansible/playbooks/staging/start-services.yml -vvv
-                python D:\\_Pythan\\ReportSuccess.py StagingServerStart
-                '''
+        if(env.Deploy)
+        {
+            stage('DeployToStaging') {
+                bat '''
+                    set TAR_PATH=D:\\Docker\\service\\ansible\\volume\\ansible\\Deployment.tar
+                    del %TAR_PATH%&
+                    call 7z a -ttar %TAR_PATH% %GameModelPath%\\GameModel\\Model.Server\\Deployment
+                    docker exec ansible ansible-playbook ./ansible/playbooks/staging/update-services.yml
+                    docker exec ansible ansible-playbook ./ansible/playbooks/staging/start-services.yml -vvv
+                    python D:\\_Pythan\\ReportSuccess.py StagingServerStart
+                    '''
+            }
         }
     }
 }
