@@ -44,7 +44,6 @@ def call(body) {
             else
             {
                 echo 'Skip Sync Perforce'
-                currentBuild.result = 'UNSTABLE'
             }
         }        
 
@@ -54,7 +53,6 @@ def call(body) {
                 cd GameModel\\WatchService
                 REM call "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\MSBuild\\15.0\\Bin\\MSBuild.exe" "WatchService.sln" /p:Configuration=Release /p:Platform=x64 /t:rebuild
                 '''
-                currentBuild.result = 'SUCCESS'
             }
         }
 
