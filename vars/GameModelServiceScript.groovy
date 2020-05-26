@@ -69,7 +69,7 @@ def call(body) {
             bat '''                
                 7z a %ZIPFILEPATH% %P4RootDir%\\GameModel\\Model.Server\\Deployment
 
-                gsutil cp %ZIPFILEPATH%.7z %GSPath%'
+                gsutil cp %ZIPFILEPATH%.7z %GSPath%
                 '''
         }
 
