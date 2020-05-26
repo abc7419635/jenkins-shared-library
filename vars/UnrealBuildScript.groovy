@@ -44,7 +44,7 @@ def call(body) {
                 def date = new Date()
                 def sdf = new SimpleDateFormat("yyyyMMdd_HHmmss")
                 def timestring = sdf.format(date)
-                env.WindowsClientDevName = 'WindowsClientDev_' + readfilevar + '_' + timestring
+                env.WindowsClientDevName = 'WindowsClientDev_' + env.P4Stream.substring(13) + '_' + readfilevar + '_' + timestring
                 echo env.WindowsClientDevName
             }
 
