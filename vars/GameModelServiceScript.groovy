@@ -84,9 +84,9 @@ def call(body) {
             }
         }
 
-        if(env.DeployToStaging=='true')
-        {
-            stage('DeployToStaging') {
+        stage('DeployToStaging') {
+            if(env.DeployToStaging=='true')
+            {
                 bat '''
                     set TAR_PATH=D:\\Docker\\service\\ansible\\volume\\ansible\\Deployment.tar
                     del %TAR_PATH%&
@@ -95,6 +95,10 @@ def call(body) {
                     docker exec ansible ansible-playbook ./ansible/playbooks/staging/start-services.yml -vvv
                     python D:\\_Pythan\\ReportSuccess.py StagingServerStart
                     '''
+            }
+            else
+            {
+                echo 'Skip Deploy To Staging'
             }
         }
     }
