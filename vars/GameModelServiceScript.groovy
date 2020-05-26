@@ -62,8 +62,8 @@ def call(body) {
         stage('CompressUpload') {
             def date = new Date()
             def sdf = new SimpleDateFormat("yyyyMMdd_HHmmss")
-            def targetName = sdf.format(date)
-            env.ZIPFILEPATH = env.P4RootDir + '\\GameModel\\DeploymentPack\\'
+            def timestring = sdf.format(date)
+            env.ZIPFILEPATH = env.P4RootDir + '\\GameModel\\DeploymentPack\\Release_' + env.P4Stream.substring(13) + '_' + env.BUILD_NUMBER + '_' + timestring
             echo env.ZIPFILEPATH
             /*
             bat '''
