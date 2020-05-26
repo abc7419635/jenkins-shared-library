@@ -42,7 +42,7 @@ def call(body) {
             dir('D:\\_BuildTools\\temp') {
                 def readfilevar = readFile('BuildVersion.txt')
                 echo readfilevar
-                readfilevar = readfilevar.replaceAll("\\s","\n")
+                readfilevar = readfilevar.replaceAll("\\s","")
                 echo readfilevar
                 def date = new Date()
                 def sdf = new SimpleDateFormat("yyyyMMdd_HHmmss")
