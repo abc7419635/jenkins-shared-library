@@ -38,20 +38,10 @@ import java.text.SimpleDateFormat
 
 def call(body) {
     node('RemoteBuildPC') {
-        stage('TestStage') {
-            dir('D:\\_BuildTools\\temp') {
-                def readfilevar = readFile('BuildVersion.txt').replaceAll("\\s","")
-                def date = new Date()
-                def sdf = new SimpleDateFormat("yyyyMMdd_HHmmss")
-                def timestring = sdf.format(date)
-                env.WindowsClientDevName = 'WindowsClientDev_' + env.P4Stream.substring(13) + '_' + readfilevar + '_' + timestring
-                echo env.WindowsClientDevName
-            }
-
-            build job: 'RemoteBuildCompress', parameters: [string(name: 'DATAPATH', value: 'E:\\'+env.WindowsClientDevName),
-            string(name: 'ZIPNAME', value: env.WindowsClientDevName)], wait: false
+        /*stage('TestStage') {
+            
         }
-        return;
+        return;*/
 
         stage('Sync Perforce') {
             if(env.SkipP4Update=='false')
@@ -155,12 +145,11 @@ def call(body) {
                 '''
 
             dir('D:\\_BuildTools\\temp') {
-                def readfilevar = readFile('BuildVersion.txt')
-                
+                def readfilevar = readFile('BuildVersion.txt').replaceAll("\\s","")
                 def date = new Date()
                 def sdf = new SimpleDateFormat("yyyyMMdd_HHmmss")
                 def timestring = sdf.format(date)
-                env.WindowsClientDevName = 'WindowsClientDev_' + readfilevar + '_' + timestring
+                env.WindowsClientDevName = 'WindowsClientDev_' + env.P4Stream.substring(13) + '_' + readfilevar + '_' + timestring
                 echo env.WindowsClientDevName
             }
 
