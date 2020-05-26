@@ -110,11 +110,25 @@ def call(body) {
                 echo 'Skip Deploy To Staging'
             }
         }
+    }
 
-        stage('DeployToLocal') {
+    node('ServerModelBuildPC') {
+        stage('DeployToLocalCOPY') {
             if(env.DeployToLocal=='true')
             {
                 bat 'copy %P4RootDir%\\GameModel\\WatchService\\Launch\\bin\\x64\\Release\\Launch.out \\\\10.2.11.122\\d\\_Launch /y'
+            }
+            else
+            {
+                echo 'Skip Deploy To Local'
+            }
+        }
+    }
+
+    node('LocalWindowsPC') {
+        stage('DeployToLocalRestart') {
+            if(env.DeployToLocal=='true')
+            {
                 bat 'docker restart launchserver'
             }
             else
