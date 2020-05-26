@@ -48,9 +48,6 @@ def call(body) {
         }        
 
         stage('Build Services') {
-            when {
-                    environment name: 'Refresh', value: 'false'
-            }
             dir(env.P4RootDir) {
                 bat '''
                 cd GameModel\\WatchService
