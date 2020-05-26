@@ -58,10 +58,27 @@ def call(body) {
         stage('PreBuild') {
             if(env.SkipP4Update=='false')
             {
-                dir('D:\\_BuildTools\\temp') {
-                    def readfilevar = readFile('BuildVersion.txt')
-                    echo readfilevar
-                }
+                bat '''
+                    rmdir /s/q %UNREAL_BUILD_DIR%
+                    md %UNREAL_BUILD_DIR%
+
+                    echo %P4_CHANGELIST% > "D:\\_BuildTools\\temp\\ContentVersion.txt"
+
+                    set P4USER=programmer
+                    set P4PASSWD=F5E023356D8072F0A3521F83E5678CE0
+                    set P4PORT=10.2.100.220:1001
+                    set P4CLIENT=RD_DailyBuild
+
+                    for /F %%i IN (D:\\_BuildTools\\temp\\ContentVersion.txt) DO (
+                    set ContentVersion=%%i
+                    )
+
+                    p4 edit -c default d:\\RD_DailyBuild\\Game\\ReDream\\Config\\DefaultGame.ini
+                    %UNREAL_SOURCECODE_DIR%\\Engine\\Binaries\\ThirdParty\\Python\\Win64\\python.exe D:\\_BuildTools\\Python\\configReaderV2.py %BUILD_ID% %ContentVersion% %SourceVersion%
+                    p4 submit -d "[AutoBuild] Auto Increase Version %BUILD_ID% ContentVer:%ContentVersion%" -f revertunchanged
+
+                    echo %BUILD_ID% > "D:\\_BuildTools\\temp\\BuildVersion.txt"
+                    '''
             }
             else
             {
@@ -69,7 +86,6 @@ def call(body) {
             }
         }
 
-        /*
         stage('Build Editor') {
             bat '"%UNREAL_SOURCECODE_DIR%\\Engine\\Build\\BatchFiles\\Build.bat" "ReDreamEditor" Win64 Development -WarningsAsErrors %UNREAL_GAME_DIR% || python D:\\_BuildTools\\Python\\ReportFailure.py %JOB_NAME%'
         }
@@ -122,6 +138,5 @@ def call(body) {
                 eac_hashtool.exe
                 '''
         }
-        */
     }
 }
