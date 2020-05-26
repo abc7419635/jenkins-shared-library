@@ -59,7 +59,7 @@ def call(body) {
             }
         }
 
-        stage('CompressUpload') {
+        stage('Compress') {
             def date = new Date()
             def sdf = new SimpleDateFormat("yyyyMMdd_HHmmss")
             def timestring = sdf.format(date)
@@ -68,9 +68,20 @@ def call(body) {
             
             bat '''                
                 7z a %ZIPFILEPATH% %P4RootDir%\\GameModel\\Model.Server\\Deployment
-
-                gsutil cp %ZIPFILEPATH%.7z %GSPath%
                 '''
+        }
+
+        stage('Upload') {
+            if(env.GSPath!='')
+            {
+                bat '''
+                    gsutil cp %ZIPFILEPATH%.7z %GSPath%
+                    '''
+            }
+            else
+            {
+                echo 'Skip Upload to GCP'
+            }
         }
 
         if(env.DeployToStaging=='true')
