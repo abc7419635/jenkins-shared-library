@@ -119,7 +119,7 @@ def call(body) {
             build job: 'RD_GameModelServiceScript', parameters: [booleanParam(name: 'DeployToStaging', value: true)], wait: false
         }
 
-        stage('DevWindowsClient') {
+        stage('WindowsClientDev') {
             bat '"%UNREAL_SOURCECODE_DIR%\\Engine\\Build\\BatchFiles\\RunUAT.bat" BuildCookRun -project=%UNREAL_GAME_DIR% -noP4 -platform=Win64 -clientconfig=Development -cook -pak -build -stage -archive -archivedirectory=%UNREAL_BUILD_DIR% -utf8output -compressed -prereqs -iterate -AdditionalCookerOptions=-BUILDMACHINE || python D:\\_BuildTools\\Python\\ReportFailure.py DevWindowsClient'
             bat '''
                 xcopy D:\\_BuildTools\\TrueSkyLib %UNREAL_BUILD_DIR%\\WindowsNoEditor\\Engine /s /e /y
@@ -132,11 +132,29 @@ def call(body) {
                 xcopy D:\\RD_DailyBuild\\Game\\ReDream\\Binaries\\DevelopmentConfig\\Engine.ini %UNREAL_BUILD_DIR%\\WindowsNoEditor\\ReDream\\Saved\\Config\\WindowsNoEditor\\ /s /e /y
                 copy D:\\_BuildTools\\SteamSDK\\installscript.vdf %UNREAL_BUILD_DIR%\\WindowsNoEditor\\ /y
                 '''
+                
             bat '''
                 D:
                 cd D:\\_BuildTools\\EAC\\AntiCheatSDK\\Client\\HashTool
                 eac_hashtool.exe
                 '''
+
+            dir('D:\\_BuildTools\\temp') {
+                def readfilevar = readFile('BuildVersion.txt')
+                
+                def date = new Date()
+                def sdf = new SimpleDateFormat("yyyyMMdd_HHmmss")
+                def timestring = sdf.format(date)
+                env.WindowsClientDevName = 'WindowsClientDev_' + readfilevar + '_' + timestring
+                echo env.WindowsClientDevName
+            }
+
+            bat '''
+                rename E:\\ReDreamPackage %WindowsClientDevName%
+                '''
+
+            build job: 'RemoteBuildCompress', parameters: [string(name: 'DATAPATH', value: 'E:\\'+env.WindowsClientDevName),
+            string(name: 'ZIPNAME', value: env.WindowsClientDevName)], wait: false
         }
     }
 }
