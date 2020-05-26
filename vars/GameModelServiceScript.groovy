@@ -65,14 +65,12 @@ def call(body) {
             def timestring = sdf.format(date)
             env.ZIPFILEPATH = env.P4RootDir + '\\GameModel\\DeploymentPack\\Release_' + env.P4Stream.substring(13) + '_' + env.BUILD_NUMBER + '_' + timestring
             echo env.ZIPFILEPATH
-            /*
-            bat '''
-                set FILEPATH=%P4RootDir%\\GameModel\\DeploymentPack\\Release_%P4Stream:~13%_%BUILD_NUMBER%_%x%_%y%
-                7z a %FILEPATH% %P4RootDir%\\GameModel\\Model.Server\\Deployment
+            
+            bat '''                
+                7z a %ZIPFILEPATH% %P4RootDir%\\GameModel\\Model.Server\\Deployment
 
-                gsutil cp %FILEPATH%.7z %GSPath%'
+                gsutil cp %ZIPFILEPATH%.7z %GSPath%'
                 '''
-            */
         }
 
         if(env.DeployToStaging=='true')
