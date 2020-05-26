@@ -40,10 +40,7 @@ def call(body) {
     node('RemoteBuildPC') {
         stage('TestStage') {
             dir('D:\\_BuildTools\\temp') {
-                def readfilevar = readFile('BuildVersion.txt')
-                echo readfilevar
-                readfilevar = readfilevar.replaceAll("\\s","")
-                echo readfilevar
+                def readfilevar = readFile('BuildVersion.txt').replaceAll("\\s","")
                 def date = new Date()
                 def sdf = new SimpleDateFormat("yyyyMMdd_HHmmss")
                 def timestring = sdf.format(date)
