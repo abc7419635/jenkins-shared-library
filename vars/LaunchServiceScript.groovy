@@ -44,7 +44,7 @@ def call(body) {
             else
             {
                 echo 'Skip Sync Perforce'
-                currentBuild.result = 'UNSTABLE'
+                stageResult.result = 'UNSTABLE'
             }
         }        
 
