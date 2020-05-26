@@ -30,6 +30,8 @@ if(env.Refresh=='false')
 }
 */
 
+import java.text.SimpleDateFormat
+
 def call(body) {
     node('ServerModelBuildPC') {
         stage('Sync Perforce') {
@@ -58,19 +60,19 @@ def call(body) {
         }
 
         stage('CompressUpload') {
+            def date = new Date()
+            def sdf = new SimpleDateFormat("yyyyMMdd_HHmmss")
+            def targetName = sdf.format(date)
+            env.ZIPFILEPATH = env.P4RootDir + '\\GameModel\\DeploymentPack\\'
+            echo env.ZIPFILEPATH
+            /*
             bat '''
-                set x=%date:~0,4%%date:~5,2%%date:~8,2%
-                IF "%time:~0,1%" == " " (
-                    set y=0%time:~1,1%%time:~3,2%%time:~6,2%
-                )ELSE (
-                    set y=%time:~0,2%%time:~3,2%%time:~6,2%
-                )
-
                 set FILEPATH=%P4RootDir%\\GameModel\\DeploymentPack\\Release_%P4Stream:~13%_%BUILD_NUMBER%_%x%_%y%
                 7z a %FILEPATH% %P4RootDir%\\GameModel\\Model.Server\\Deployment
 
                 gsutil cp %FILEPATH%.7z %GSPath%'
                 '''
+            */
         }
 
         if(env.DeployToStaging=='true')
