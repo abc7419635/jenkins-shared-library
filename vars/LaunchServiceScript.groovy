@@ -72,7 +72,7 @@ def call(body) {
             if(env.GSPath!='')
             {
                 bat '''
-                    gsutil cp %ZIPFILEPATH%.tar %GSPath%
+                    gsutil cp %ZIPFILEPATH% %GSPath%
                     '''
             }
             else
