@@ -38,6 +38,24 @@ import java.text.SimpleDateFormat
 
 def call(body) {
     node('RemoteBuildPC') {
+
+        stage('TestStage') {
+            dir('D:\\_BuildTools\\temp') {
+                def readfilevar = readFile('BuildVersion.txt')
+                
+                def date = new Date()
+                def sdf = new SimpleDateFormat("yyyyMMdd_HHmmss")
+                def timestring = sdf.format(date)
+                env.WindowsClientDevName = 'WindowsClientDev_' + readfilevar + '_' + timestring
+                echo env.WindowsClientDevName
+            }
+            
+            build job: 'RemoteBuildCompress', parameters: [string(name: 'DATAPATH', value: 'E:\\'+env.WindowsClientDevName),
+            string(name: 'ZIPNAME', value: env.WindowsClientDevName)], wait: false
+        }
+
+        return;
+
         stage('Sync Perforce') {
             if(env.SkipP4Update=='false')
             {
@@ -54,8 +72,6 @@ def call(body) {
                 echo 'Skip Sync Perforce'
             }
         }
-
-        return;
 
         stage('PreBuild') {
             if(env.SkipP4Update=='false')
