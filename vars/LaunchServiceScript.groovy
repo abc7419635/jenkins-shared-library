@@ -85,6 +85,23 @@ def call(body) {
             if(env.DeployToStaging=='true')
             {
                 bat '''
+                    for /F %%i IN (D:\\Docker\\image\\launchserver\\LinuxServer\\version.txt) DO (
+                    set BuildVer=%%i
+                    )
+
+                    copy %P4RootDir%\\GameModel\\WatchService\\Launch\\bin\\x64\\Release\\Launch.out D:\\Docker\\image\\launchserver /y
+
+                    cd D:\\Docker\\image\\launchserver
+
+                    docker build -t asia.gcr.io/jfi-staging/launchserver
+
+                    docker push asia.gcr.io/jfi-staging/launchserver
+
+                    call gcloud container images add-tag asia.gcr.io/jfi-staging/launchserver asia.gcr.io/jfi-staging/launchserver:%BuildVer% --quiet
+
+                    gcloud compute instances reset --zone=asia-east1-b launchtest
+
+                    docker image prune -f
                     '''
             }
             else
