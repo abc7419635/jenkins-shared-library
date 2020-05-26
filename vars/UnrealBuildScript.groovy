@@ -159,6 +159,8 @@ def call(body) {
 
             build job: 'RemoteBuildCompress', parameters: [string(name: 'DATAPATH', value: 'E:\\'+env.WindowsClientDevName),
             string(name: 'ZIPNAME', value: env.WindowsClientDevName)], wait: false
+
+            bat 'python D:\\_BuildTools\\Python\\ReportSuccess.py WindowsClientDev WindowsClientDev'
         }
     }
 }
