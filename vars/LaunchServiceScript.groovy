@@ -98,11 +98,11 @@ def call(body) {
 
                     docker push asia.gcr.io/jfi-staging/launchserver
 
+                    docker image prune -f
+
                     call gcloud container images add-tag asia.gcr.io/jfi-staging/launchserver asia.gcr.io/jfi-staging/launchserver:%BuildVer% --quiet
 
                     gcloud compute instances reset --zone=asia-east1-b launchtest
-
-                    docker image prune -f
                     '''
             }
             else
