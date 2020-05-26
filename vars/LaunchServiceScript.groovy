@@ -48,10 +48,13 @@ def call(body) {
         }        
 
         stage('Build Services') {
+            when {
+                    environment name: 'Refresh', value: 'true'
+            }
             dir(env.P4RootDir) {
                 bat '''
                 cd GameModel\\WatchService
-                REM call "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\MSBuild\\15.0\\Bin\\MSBuild.exe" "WatchService.sln" /p:Configuration=Release /p:Platform=x64 /t:rebuild
+                call "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\MSBuild\\15.0\\Bin\\MSBuild.exe" "WatchService.sln" /p:Configuration=Release /p:Platform=x64 /t:rebuild
                 '''
             }
         }
