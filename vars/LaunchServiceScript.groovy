@@ -63,16 +63,16 @@ def call(body) {
             env.ZIPFILEPATH = env.P4RootDir + '\\GameModel\\DeploymentPack\\Launch_' + env.P4Stream.substring(13) + '_' + env.BUILD_NUMBER + '_' + timestring + '.tar'
             echo env.ZIPFILEPATH
             
-            /*bat '''                
-                7z a %ZIPFILEPATH% %P4RootDir%\\GameModel\\Model.Server\\Deployment
-                '''*/
+            bat '''                
+                7z a %ZIPFILEPATH% %P4RootDir%\\GameModel\\WatchService\\Launch\\bin\\x64\\Release\\Launch.out
+                '''
         }
 
-        /*stage('Upload') {
+        stage('Upload') {
             if(env.GSPath!='')
             {
                 bat '''
-                    gsutil cp %ZIPFILEPATH%.7z %GSPath%
+                    gsutil cp %ZIPFILEPATH%.tar %GSPath%
                     '''
             }
             else
@@ -81,6 +81,7 @@ def call(body) {
             }
         }
 
+        /*
         if(env.DeployToStaging=='true')
         {
             stage('DeployToStaging') {
