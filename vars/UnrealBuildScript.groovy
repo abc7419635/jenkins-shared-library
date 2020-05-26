@@ -55,6 +55,8 @@ def call(body) {
             }
         }
 
+        return;
+
         stage('PreBuild') {
             if(env.SkipP4Update=='false')
             {
@@ -132,7 +134,7 @@ def call(body) {
                 xcopy D:\\RD_DailyBuild\\Game\\ReDream\\Binaries\\DevelopmentConfig\\Engine.ini %UNREAL_BUILD_DIR%\\WindowsNoEditor\\ReDream\\Saved\\Config\\WindowsNoEditor\\ /s /e /y
                 copy D:\\_BuildTools\\SteamSDK\\installscript.vdf %UNREAL_BUILD_DIR%\\WindowsNoEditor\\ /y
                 '''
-                
+
             bat '''
                 D:
                 cd D:\\_BuildTools\\EAC\\AntiCheatSDK\\Client\\HashTool
