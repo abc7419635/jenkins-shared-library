@@ -13,6 +13,7 @@ pipeline {
         string(name: 'BOTO_CONFIG', defaultValue: 'D:\\JenkinsRemoteRoot\\.boto', description: '')
         string(name: 'GSPath', defaultValue: 'gs://server_model_release/', description: '')
         booleanParam(name: 'DeployToStaging', defaultValue: false, description: '')
+        booleanParam(name: 'DeployToLocal', defaultValue: false, description: '')
     }
     
     stages {
@@ -107,6 +108,18 @@ def call(body) {
             else
             {
                 echo 'Skip Deploy To Staging'
+            }
+        }
+
+        stage('DeployToLocal') {
+            if(env.DeployToLocal=='true')
+            {
+                bat 'copy %P4RootDir%\\GameModel\\WatchService\\Launch\\bin\\x64\\Release\\Launch.out \\\\10.2.11.122\\d\\_Launch /y'
+                bat 'docker restart launchserver'
+            }
+            else
+            {
+                echo 'Skip Deploy To Local'
             }
         }
     }
