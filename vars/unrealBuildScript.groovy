@@ -23,11 +23,11 @@ pipeline {
         stage('Init Parameters') {
             steps {
                 echo 'Init Parameters'
-            }
 
-            script {
-                if(env.Refresh=='false') {
-                    unrealBuildScript()
+                script {
+                    if(env.Refresh=='false') {
+                        unrealBuildScript()
+                    }
                 }
             }
         }
