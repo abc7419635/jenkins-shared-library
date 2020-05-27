@@ -54,7 +54,7 @@ def call(body) {
                 cd GameModel\\Model.Server
                 call Deployment\\Bot\\ClearLogs.bat
                 call Deployment\\DeployCore\\Instances\\ClearLogs.bat
-                "..\\Tools\\ExcelParser\\MSBuild\\15.0\\Bin\\MSBuild.exe" "GameModel.sln" -p:Configuration=Release -restore -t:rebuild
+                "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\MSBuild\\15.0\\Bin\\MSBuild.exe" "GameModel.sln" -p:Configuration=Release -restore -t:rebuild
                 '''
             }
         }
