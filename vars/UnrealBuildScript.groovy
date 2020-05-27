@@ -45,7 +45,7 @@ def call(body) {
                 xcopy D:\\_BuildTools\\EAC\\_EACLinuxServer %UNREAL_BUILD_DIR%\\LinuxServer /s /e /y
                 xcopy D:\\RD_DailyBuild\\Game\\ReDream\\Binaries\\DevelopmentConfig\\RDSetting.ini %UNREAL_BUILD_DIR%\\LinuxServer\\ReDream\\Saved\\Config\\LinuxServer\\ /s /e /y
                 '''
-                
+
             dir('D:\\_BuildTools\\temp') {
                 def readfilevar = readFile('BuildVersion.txt').replaceAll("\\s","")
                 def date = new Date()
@@ -58,7 +58,7 @@ def call(body) {
 
             build job: 'RemoteBuildCompress', parameters: [
             string(name: 'DATAPATH', value: 'E:\\'+env.LinuxServerShippingName),
-            string(name: 'ZIPNAME', value: env.LinuxServerShippingName)], wait: false
+            string(name: 'ZIPNAME', value: env.LinuxServerShippingName+'.tar')], wait: false
 
             bat 'python D:\\_BuildTools\\Python\\ReportSuccess.py LinuxServerShipping LinuxServerShipping'
         }
