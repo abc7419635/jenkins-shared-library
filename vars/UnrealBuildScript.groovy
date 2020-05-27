@@ -91,7 +91,7 @@ def call(body) {
         }
 
         stage('Build Editor') {
-            bat '"%UNREAL_SOURCECODE_DIR%\\Engine\\Build\\BatchFiles\\Build.bat" "ReDreamEditor" Win64 Development -WarningsAsErrors %UNREAL_GAME_DIR% || python D:\\_BuildTools\\Python\\ReportFailure.py %JOB_NAME%'
+            bat '"%UNREAL_SOURCECODE_DIR%\\Engine\\Build\\BatchFiles\\Build.bat" "ReDreamEditor" Win64 Development -WarningsAsErrors %UNREAL_GAME_DIR% || python D:\\_BuildTools\\Python\\ReportFailure.py BuildEditor'
         }
 
         stage('Cook Content') {
@@ -124,7 +124,7 @@ def call(body) {
         }
 
         stage('WindowsClientDev') {
-            bat '"%UNREAL_SOURCECODE_DIR%\\Engine\\Build\\BatchFiles\\RunUAT.bat" BuildCookRun -project=%UNREAL_GAME_DIR% -noP4 -platform=Win64 -clientconfig=Development -cook -pak -build -stage -archive -archivedirectory=%UNREAL_BUILD_DIR% -utf8output -compressed -prereqs -iterate -AdditionalCookerOptions=-BUILDMACHINE || python D:\\_BuildTools\\Python\\ReportFailure.py DevWindowsClient'
+            bat '"%UNREAL_SOURCECODE_DIR%\\Engine\\Build\\BatchFiles\\RunUAT.bat" BuildCookRun -project=%UNREAL_GAME_DIR% -noP4 -platform=Win64 -clientconfig=Development -cook -pak -build -stage -archive -archivedirectory=%UNREAL_BUILD_DIR% -utf8output -compressed -prereqs -iterate -AdditionalCookerOptions=-BUILDMACHINE || python D:\\_BuildTools\\Python\\ReportFailure.py WindowsClientDev'
             bat '''
                 xcopy D:\\_BuildTools\\TrueSkyLib %UNREAL_BUILD_DIR%\\WindowsNoEditor\\Engine /s /e /y
                 E:
@@ -157,11 +157,11 @@ def call(body) {
             build job: 'RemoteBuildCompress', parameters: [string(name: 'DATAPATH', value: 'E:\\'+env.WindowsClientDevName),
             string(name: 'ZIPNAME', value: env.WindowsClientDevName)], wait: false
 
-            bat 'python D:\\_BuildTools\\Python\\ReportSuccess.py WindowsClientDev WindowsClientDev'
+            bat 'python D:\\_BuildTools\\Python\\ReportSuccess.py WindowsClientDev'
         }
 
         stage('WindowsServerDev') {
-            bat '"%UNREAL_SOURCECODE_DIR%\\Engine\\Build\\BatchFiles\\RunUAT.bat" BuildCookRun -project=%UNREAL_GAME_DIR% -noP4 -platform=Win64 -serverconfig=Development -cook -pak -build -stage -server -serverplatform=Win64 -noclient -archive -archivedirectory=%UNREAL_BUILD_DIR% -utf8output -compressed -prereqs -DUMPALLWARNINGS -iterate -AdditionalCookerOptions=-BUILDMACHINE || python D:\\_BuildTools\\Python\\ReportFailure.py %JOB_NAME%'
+            bat '"%UNREAL_SOURCECODE_DIR%\\Engine\\Build\\BatchFiles\\RunUAT.bat" BuildCookRun -project=%UNREAL_GAME_DIR% -noP4 -platform=Win64 -serverconfig=Development -cook -pak -build -stage -server -serverplatform=Win64 -noclient -archive -archivedirectory=%UNREAL_BUILD_DIR% -utf8output -compressed -prereqs -DUMPALLWARNINGS -iterate -AdditionalCookerOptions=-BUILDMACHINE || python D:\\_BuildTools\\Python\\ReportFailure.py WindowsServerDev'
             bat '''
                 xcopy D:\\_BuildTools\\EAC\\_EACWinServer %UNREAL_BUILD_DIR%\\WindowsServer /s /e /y
                 xcopy D:\\RD_DailyBuild\\Game\\ReDream\\Binaries\\WindowsDevelopmentConfig\\RDSetting.ini %UNREAL_BUILD_DIR%\\WindowsServer\\ReDream\\Saved\\Config\\WindowsServer\\ /s /e /y
@@ -180,11 +180,11 @@ def call(body) {
             build job: 'RemoteBuildCompress', parameters: [string(name: 'DATAPATH', value: 'E:\\'+env.WindowsServerDevName),
             string(name: 'ZIPNAME', value: env.WindowsServerDevName)], wait: false
 
-            bat 'python D:\\_BuildTools\\Python\\ReportSuccess.py WindowsServerDev WindowsServerDev'
+            bat 'python D:\\_BuildTools\\Python\\ReportSuccess.py WindowsServerDev'
         }
 
         stage('LinuxServerDev') {
-            bat '"%UNREAL_SOURCECODE_DIR%\\Engine\\Build\\BatchFiles\\RunUAT.bat" BuildCookRun -project=%UNREAL_GAME_DIR% -noP4 -platform=Linux -serverconfig=Development -cook -pak -build -stage -server -serverplatform=Linux -noclient -archive -archivedirectory=%UNREAL_BUILD_DIR% -utf8output -compressed -prereqs -iterate -AdditionalCookerOptions=-BUILDMACHINE || python D:\\_BuildTools\\Python\\ReportFailure.py LinuxServerDevName LinuxServerDevName'
+            bat '"%UNREAL_SOURCECODE_DIR%\\Engine\\Build\\BatchFiles\\RunUAT.bat" BuildCookRun -project=%UNREAL_GAME_DIR% -noP4 -platform=Linux -serverconfig=Development -cook -pak -build -stage -server -serverplatform=Linux -noclient -archive -archivedirectory=%UNREAL_BUILD_DIR% -utf8output -compressed -prereqs -iterate -AdditionalCookerOptions=-BUILDMACHINE || python D:\\_BuildTools\\Python\\ReportFailure.py LinuxServerDev LinuxServerDev'
             bat '''
                 xcopy D:\\_BuildTools\\EAC\\_EACLinuxServer %UNREAL_BUILD_DIR%\\LinuxServer /s /e /y
                 xcopy D:\\RD_DailyBuild\\Game\\ReDream\\Binaries\\DevelopmentConfig\\RDSetting.ini %UNREAL_BUILD_DIR%\\LinuxServer\\ReDream\\Saved\\Config\\LinuxServer\\ /s /e /y
@@ -219,7 +219,7 @@ def call(body) {
             string(name: 'DATAPATH', value: 'E:\\'+env.LinuxServerDevName),
             string(name: 'ZIPNAME', value: env.LinuxServerDevName+'.tar')], wait: false
 
-            bat 'python D:\\_BuildTools\\Python\\ReportSuccess.py LinuxServerDev LinuxServerDev'
+            bat 'python D:\\_BuildTools\\Python\\ReportSuccess.py LinuxServerDev'
         }
 
         stage('WindowsClientShipping') {
@@ -257,7 +257,7 @@ def call(body) {
             string(name: 'DATAPATH', value: 'E:\\'+env.WindowsClientShippingName),
             string(name: 'ZIPNAME', value: env.WindowsClientShippingName)], wait: false
 
-            bat 'python D:\\_BuildTools\\Python\\ReportSuccess.py WindowsClientShipping WindowsClientShipping'
+            bat 'python D:\\_BuildTools\\Python\\ReportSuccess.py WindowsClientShipping'
         }
 
         stage('LinuxServerShipping') {
@@ -282,7 +282,7 @@ def call(body) {
             string(name: 'DATAPATH', value: 'E:\\'+env.LinuxServerShippingName),
             string(name: 'ZIPNAME', value: env.LinuxServerShippingName+'.tar')], wait: false
 
-            bat 'python D:\\_BuildTools\\Python\\ReportSuccess.py LinuxServerShipping LinuxServerShipping'
+            bat 'python D:\\_BuildTools\\Python\\ReportSuccess.py LinuxServerShipping'
         }
     }
 }
