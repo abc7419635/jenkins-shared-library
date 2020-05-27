@@ -24,17 +24,31 @@ pipeline {
             steps {
                 echo 'Init Parameters'
             }
+
+            script {
+                if(env.Refresh=='false') {
+                    unrealBuildScript()
+                }
+            }
+        }
+    }
+
+    post {
+        failure {
+            script {
+                unrealBuildScript.saySomething()
+            }
         }
     }
 }
 
-if(env.Refresh=='false')
-{
-    unrealBuildScript()
-}
 */
 
 import java.text.SimpleDateFormat
+
+def saySomething() {
+    println 'error error error error error'
+}
 
 def call(body) {
     node('RemoteBuildPC') {
