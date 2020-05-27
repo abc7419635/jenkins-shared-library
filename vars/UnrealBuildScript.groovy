@@ -38,10 +38,29 @@ import java.text.SimpleDateFormat
 
 def call(body) {
     node('RemoteBuildPC') {
-        /*stage('TestStage') {
-            
+        stage('WindowsServerDev') {
+            bat '"%UNREAL_SOURCECODE_DIR%\\Engine\\Build\\BatchFiles\\RunUAT.bat" BuildCookRun -project=%UNREAL_GAME_DIR% -noP4 -platform=Win64 -serverconfig=Development -cook -pak -build -stage -server -serverplatform=Win64 -noclient -archive -archivedirectory=%UNREAL_BUILD_DIR% -utf8output -compressed -prereqs -DUMPALLWARNINGS -iterate -AdditionalCookerOptions=-BUILDMACHINE || python D:\\_BuildTools\\Python\\ReportFailure.py %JOB_NAME%'
+            bat '''
+                xcopy D:\\_BuildTools\\EAC\\_EACWinServer %UNREAL_BUILD_DIR%\\WindowsServer /s /e /y
+                xcopy D:\\RD_DailyBuild\\Game\\ReDream\\Binaries\\WindowsDevelopmentConfig\\RDSetting.ini %UNREAL_BUILD_DIR%\\WindowsServer\\ReDream\\Saved\\Config\\WindowsServer\\ /s /e /y
+                '''
+            bat 'echo ReDream\\Binaries\\Win64\\ReDreamServer.exe /Game/Main/Maps/Scn01/MAP_Scn01_EA_BC -log networkprofiler=true > %UNREAL_BUILD_DIR%\\WindowsServer\\ReDreamServer.bat'
+            dir('D:\\_BuildTools\\temp') {
+                def readfilevar = readFile('BuildVersion.txt').replaceAll("\\s","")
+                def date = new Date()
+                def sdf = new SimpleDateFormat("yyyyMMdd_HHmmss")
+                def timestring = sdf.format(date)
+                env.WindowsServerDevName = 'WindowsServerDev_' + env.P4Stream.substring(13) + '_' + readfilevar + '_' + timestring
+                echo env.WindowsServerDevName
+            }
+            bat 'rename E:\\ReDreamPackage %WindowsServerDevName%'
+
+            build job: 'RemoteBuildCompress', parameters: [string(name: 'DATAPATH', value: 'E:\\'+env.WindowsServerDevName),
+            string(name: 'ZIPNAME', value: env.WindowsServerDevName)], wait: false
+
+            bat 'python D:\\_BuildTools\\Python\\ReportSuccess.py WindowsServerDev WindowsServerDev'
         }
-        return;*/
+        return;
 
         stage('Sync Perforce') {
             if(env.SkipP4Update=='false')
@@ -153,9 +172,7 @@ def call(body) {
                 echo env.WindowsClientDevName
             }
 
-            bat '''
-                rename E:\\ReDreamPackage %WindowsClientDevName%
-                '''
+            bat 'rename E:\\ReDreamPackage %WindowsClientDevName%'
 
             build job: 'RemoteBuildCompress', parameters: [string(name: 'DATAPATH', value: 'E:\\'+env.WindowsClientDevName),
             string(name: 'ZIPNAME', value: env.WindowsClientDevName)], wait: false
