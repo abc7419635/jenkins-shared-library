@@ -1,12 +1,14 @@
 import java.text.SimpleDateFormat
+import groovy.time.TimeCategory
 
 def call(body) {
     node('RemoteBuildPC') {        
         stage('test') {
 
-            use (groovy.time.TimeCategory) {
-                println new Date()
-                println 10.hours.from.now
+            now = new Date()
+            use(TimeCategory) {
+                ydate = now - 1.days
+                println ydate
             }
         }
     }
