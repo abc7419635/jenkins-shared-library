@@ -38,27 +38,43 @@ import java.text.SimpleDateFormat
 
 def call(body) {
     node('RemoteBuildPC') {
-        stage('WindowsServerDev') {
-            bat '"%UNREAL_SOURCECODE_DIR%\\Engine\\Build\\BatchFiles\\RunUAT.bat" BuildCookRun -project=%UNREAL_GAME_DIR% -noP4 -platform=Win64 -serverconfig=Development -cook -pak -build -stage -server -serverplatform=Win64 -noclient -archive -archivedirectory=%UNREAL_BUILD_DIR% -utf8output -compressed -prereqs -DUMPALLWARNINGS -iterate -AdditionalCookerOptions=-BUILDMACHINE || python D:\\_BuildTools\\Python\\ReportFailure.py %JOB_NAME%'
+        stage('LinuxServerDev') {
+            bat '"%UNREAL_SOURCECODE_DIR%\\Engine\\Build\\BatchFiles\\RunUAT.bat" BuildCookRun -project=%UNREAL_GAME_DIR% -noP4 -platform=Linux -serverconfig=Development -cook -pak -build -stage -server -serverplatform=Linux -noclient -archive -archivedirectory=%UNREAL_BUILD_DIR% -utf8output -compressed -prereqs -iterate -AdditionalCookerOptions=-BUILDMACHINE || python D:\\_BuildTools\\Python\\ReportFailure.py LinuxServerDevName LinuxServerDevName'
             bat '''
-                xcopy D:\\_BuildTools\\EAC\\_EACWinServer %UNREAL_BUILD_DIR%\\WindowsServer /s /e /y
-                xcopy D:\\RD_DailyBuild\\Game\\ReDream\\Binaries\\WindowsDevelopmentConfig\\RDSetting.ini %UNREAL_BUILD_DIR%\\WindowsServer\\ReDream\\Saved\\Config\\WindowsServer\\ /s /e /y
+                xcopy D:\\_BuildTools\\EAC\\_EACLinuxServer %UNREAL_BUILD_DIR%\\LinuxServer /s /e /y
+                xcopy D:\\RD_DailyBuild\\Game\\ReDream\\Binaries\\DevelopmentConfig\\RDSetting.ini %UNREAL_BUILD_DIR%\\LinuxServer\\ReDream\\Saved\\Config\\LinuxServer\\ /s /e /y
                 '''
-            bat 'echo ReDream\\Binaries\\Win64\\ReDreamServer.exe /Game/Main/Maps/Scn01/MAP_Scn01_EA_BC -log networkprofiler=true > %UNREAL_BUILD_DIR%\\WindowsServer\\ReDreamServer.bat'
+            dir('D:\\_BuildTools\\temp') {
+                env.BuildVer = readFile('BuildVersion.txt').replaceAll("\\s","")
+            }
+
+            bat '''
+                echo %BuildVer% > %UNREAL_BUILD_DIR%\\LinuxServer\\version.txt
+                rmdir /Q/S \\\\10.2.11.61\\D\\Docker\\image\\launchserver\\LinuxServer
+                xcopy %UNREAL_BUILD_DIR% \\\\10.2.11.61\\D\\Docker\\image\\launchserver\\ /s /e /y
+
+                rmdir /Q/S \\\\10.2.11.122\\D\\_LinuxServerOld\\LinuxServer
+                move \\\\10.2.11.122\\D\\_Launch\\LinuxServer \\\\10.2.11.122\\D\\_LinuxServerOld
+                xcopy %UNREAL_BUILD_DIR% \\\\10.2.11.122\\D\\_Launch\\ /s /e /y
+                copy /Y \\\\10.2.11.122\\D\\_Launch\\RDSetting.ini \\\\10.2.11.122\\D\\_Launch\\LinuxServer\\ReDream\\Saved\\Config\\LinuxServer\\
+                '''
+
+
             dir('D:\\_BuildTools\\temp') {
                 def readfilevar = readFile('BuildVersion.txt').replaceAll("\\s","")
                 def date = new Date()
                 def sdf = new SimpleDateFormat("yyyyMMdd_HHmmss")
                 def timestring = sdf.format(date)
-                env.WindowsServerDevName = 'WindowsServerDev_' + env.P4Stream.substring(13) + '_' + readfilevar + '_' + timestring
-                echo env.WindowsServerDevName
+                env.LinuxServerDevName = 'LinuxServerDev_' + env.P4Stream.substring(13) + '_' + readfilevar + '_' + timestring
+                echo env.LinuxServerDevName
             }
-            bat 'rename E:\\ReDreamPackage %WindowsServerDevName%'
+            bat 'rename E:\\ReDreamPackage %LinuxServerDevName%'
 
-            build job: 'RemoteBuildCompress', parameters: [string(name: 'DATAPATH', value: 'E:\\'+env.WindowsServerDevName),
-            string(name: 'ZIPNAME', value: env.WindowsServerDevName)], wait: false
+            build job: 'RemoteBuildCompress', parameters: [
+            string(name: 'DATAPATH', value: 'E:\\'+env.LinuxServerDevName),
+            string(name: 'ZIPNAME', value: env.LinuxServerDevName+'.tar')], wait: false
 
-            bat 'python D:\\_BuildTools\\Python\\ReportSuccess.py WindowsServerDev WindowsServerDev'
+            bat 'python D:\\_BuildTools\\Python\\ReportSuccess.py LinuxServerDevName LinuxServerDevName'
         }
         return;
 
@@ -178,6 +194,29 @@ def call(body) {
             string(name: 'ZIPNAME', value: env.WindowsClientDevName)], wait: false
 
             bat 'python D:\\_BuildTools\\Python\\ReportSuccess.py WindowsClientDev WindowsClientDev'
+        }
+
+        stage('WindowsServerDev') {
+            bat '"%UNREAL_SOURCECODE_DIR%\\Engine\\Build\\BatchFiles\\RunUAT.bat" BuildCookRun -project=%UNREAL_GAME_DIR% -noP4 -platform=Win64 -serverconfig=Development -cook -pak -build -stage -server -serverplatform=Win64 -noclient -archive -archivedirectory=%UNREAL_BUILD_DIR% -utf8output -compressed -prereqs -DUMPALLWARNINGS -iterate -AdditionalCookerOptions=-BUILDMACHINE || python D:\\_BuildTools\\Python\\ReportFailure.py %JOB_NAME%'
+            bat '''
+                xcopy D:\\_BuildTools\\EAC\\_EACWinServer %UNREAL_BUILD_DIR%\\WindowsServer /s /e /y
+                xcopy D:\\RD_DailyBuild\\Game\\ReDream\\Binaries\\WindowsDevelopmentConfig\\RDSetting.ini %UNREAL_BUILD_DIR%\\WindowsServer\\ReDream\\Saved\\Config\\WindowsServer\\ /s /e /y
+                '''
+            bat 'echo ReDream\\Binaries\\Win64\\ReDreamServer.exe /Game/Main/Maps/Scn01/MAP_Scn01_EA_BC -log networkprofiler=true > %UNREAL_BUILD_DIR%\\WindowsServer\\ReDreamServer.bat'
+            dir('D:\\_BuildTools\\temp') {
+                def readfilevar = readFile('BuildVersion.txt').replaceAll("\\s","")
+                def date = new Date()
+                def sdf = new SimpleDateFormat("yyyyMMdd_HHmmss")
+                def timestring = sdf.format(date)
+                env.WindowsServerDevName = 'WindowsServerDev_' + env.P4Stream.substring(13) + '_' + readfilevar + '_' + timestring
+                echo env.WindowsServerDevName
+            }
+            bat 'rename E:\\ReDreamPackage %WindowsServerDevName%'
+
+            build job: 'RemoteBuildCompress', parameters: [string(name: 'DATAPATH', value: 'E:\\'+env.WindowsServerDevName),
+            string(name: 'ZIPNAME', value: env.WindowsServerDevName)], wait: false
+
+            bat 'python D:\\_BuildTools\\Python\\ReportSuccess.py WindowsServerDev WindowsServerDev'
         }
     }
 }
