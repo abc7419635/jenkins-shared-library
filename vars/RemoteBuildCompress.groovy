@@ -21,7 +21,7 @@ pipeline {
 
 if(env.Refresh=='false')
 {
-    RemoteBuildCompress()
+    remoteBuildCompress()
 }
 */
 

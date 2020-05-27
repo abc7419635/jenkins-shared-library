@@ -27,7 +27,7 @@ pipeline {
 
 if(env.Refresh=='false')
 {
-    LaunchServiceScript()
+    launchServiceScript()
 }
 */
 

@@ -26,7 +26,7 @@ pipeline {
 
 if(env.Refresh=='false')
 {
-    GameModelServiceScript()
+    gameModelServiceScript()
 }
 */
 

@@ -20,7 +20,7 @@ pipeline {
 
 if(env.Refresh=='false')
 {
-    SteamDeploy()
+    steamDeploy()
 }
 */
 

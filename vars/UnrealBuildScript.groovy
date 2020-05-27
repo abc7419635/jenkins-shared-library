@@ -30,7 +30,7 @@ pipeline {
 
 if(env.Refresh=='false')
 {
-    UnrealBuildScript()
+    unrealBuildScript()
 }
 */
 
@@ -92,6 +92,7 @@ def call(body) {
 
         stage('Build Editor') {
             bat '"%UNREAL_SOURCECODE_DIR%\\Engine\\Build\\BatchFiles\\Build.bat" "ReDreamEditor" Win64 Development -WarningsAsErrors %UNREAL_GAME_DIR% || python D:\\_BuildTools\\Python\\ReportFailure.py BuildEditor'
+            bat 'python D:\\_BuildTools\\Python\\ReportSuccess.py BuildEditor'
         }
 
         stage('Cook Content') {
