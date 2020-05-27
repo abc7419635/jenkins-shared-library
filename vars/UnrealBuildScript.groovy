@@ -45,14 +45,7 @@ def call(body) {
                 xcopy D:\\_BuildTools\\EAC\\_EACLinuxServer %UNREAL_BUILD_DIR%\\LinuxServer /s /e /y
                 xcopy D:\\RD_DailyBuild\\Game\\ReDream\\Binaries\\DevelopmentConfig\\RDSetting.ini %UNREAL_BUILD_DIR%\\LinuxServer\\ReDream\\Saved\\Config\\LinuxServer\\ /s /e /y
                 '''
-
-            
-            bat '''
-                D:
-                cd D:\\_BuildTools\\EAC\\AntiCheatSDK\\Client\\HashTool
-                eac_hashtool.exe
-                '''
-
+                
             dir('D:\\_BuildTools\\temp') {
                 def readfilevar = readFile('BuildVersion.txt').replaceAll("\\s","")
                 def date = new Date()
