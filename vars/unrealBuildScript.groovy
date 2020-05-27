@@ -52,9 +52,10 @@ def saySomething() {
 
 def call(body) {
     node('RemoteBuildPC') {
-        /*stage('Test') {
+        stage('Test') {
+            echo 'OK'
         }
-        return;*/
+        return;
 
         stage('Sync Perforce') {
             if(env.SkipP4Update=='false')
