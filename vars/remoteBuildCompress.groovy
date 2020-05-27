@@ -14,14 +14,15 @@ pipeline {
         stage('Init Parameters') {
             steps {
                 echo 'Init Parameters'
+
+                script {
+                    if(env.Refresh=='false') {
+                        remoteBuildCompress()
+                    }
+                }
             }
         }
     }
-}
-
-if(env.Refresh=='false')
-{
-    remoteBuildCompress()
 }
 */
 

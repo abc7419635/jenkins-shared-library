@@ -19,14 +19,15 @@ pipeline {
         stage('Init Parameters') {
             steps {
                 echo 'Init Parameters'
+
+                script {
+                    if(env.Refresh=='false') {
+                        gameModelServiceScript()
+                    }
+                }
             }
         }
     }
-}
-
-if(env.Refresh=='false')
-{
-    gameModelServiceScript()
 }
 */
 

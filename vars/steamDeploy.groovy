@@ -13,14 +13,15 @@ pipeline {
         stage('Init Parameters') {
             steps {
                 echo 'Init Parameters'
+
+                script {
+                    if(env.Refresh=='false') {
+                        steamDeploy()
+                    }
+                }
             }
         }
     }
-}
-
-if(env.Refresh=='false')
-{
-    steamDeploy()
 }
 */
 

@@ -20,14 +20,15 @@ pipeline {
         stage('Init Parameters') {
             steps {
                 echo 'Init Parameters'
+
+                script {
+                    if(env.Refresh=='false') {
+                        launchServiceScript()
+                    }
+                }
             }
         }
     }
-}
-
-if(env.Refresh=='false')
-{
-    launchServiceScript()
 }
 */
 
