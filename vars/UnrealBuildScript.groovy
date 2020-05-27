@@ -38,20 +38,14 @@ import java.text.SimpleDateFormat
 
 def call(body) {
     node('RemoteBuildPC') {
-        stage('WindowsClientShipping') {
-            bat '"%UNREAL_SOURCECODE_DIR%\\Engine\\Build\\BatchFiles\\RunUAT.bat" BuildCookRun -project=%UNREAL_GAME_DIR% -noP4 -platform=Win64 -clientconfig=Shipping -cook -pak -build -stage -archive -archivedirectory=%UNREAL_BUILD_DIR% -utf8output -compressed -prereqs -iterate -AdditionalCookerOptions=-BUILDMACHINE || python D:\\_BuildTools\\Python\\ReportFailure.py WindowsClientShipping WindowsClientShipping'
+        stage('LinuxServerShipping') {
+            bat '"%UNREAL_SOURCECODE_DIR%\\Engine\\Build\\BatchFiles\\RunUAT.bat" BuildCookRun -project=%UNREAL_GAME_DIR% -noP4 -platform=Linux -serverconfig=Shipping -cook -pak -build -stage -server -serverplatform=Linux -noclient -archive -archivedirectory=%UNREAL_BUILD_DIR% -utf8output -compressed -prereqs -iterate -AdditionalCookerOptions=-BUILDMACHINE || python D:\\_BuildTools\\Python\\ReportFailure.py LinuxServerShipping LinuxServerShipping'
 
             bat '''
-                xcopy D:\\_BuildTools\\TrueSkyLib %UNREAL_BUILD_DIR%\\WindowsNoEditor\\Engine /s /e /y
-                E:
-                cd %UNREAL_BUILD_DIR%\\WindowsNoEditor
-                del ReDream.exe
-                cd ReDream\\Binaries\\Win64
-                rename ReDream-Win64-Shipping.exe ReDream.exe
-
-                xcopy D:\\_BuildTools\\EAC\\_EACClient %UNREAL_BUILD_DIR%\\WindowsNoEditor /s /e /y
-                copy D:\\_BuildTools\\SteamSDK\\installscript.vdf %UNREAL_BUILD_DIR%\\WindowsNoEditor\\ /y
+                xcopy D:\\_BuildTools\\EAC\\_EACLinuxServer %UNREAL_BUILD_DIR%\\LinuxServer /s /e /y
+                xcopy D:\\RD_DailyBuild\\Game\\ReDream\\Binaries\\DevelopmentConfig\\RDSetting.ini %UNREAL_BUILD_DIR%\\LinuxServer\\ReDream\\Saved\\Config\\LinuxServer\\ /s /e /y
                 '''
+
             
             bat '''
                 D:
@@ -64,16 +58,16 @@ def call(body) {
                 def date = new Date()
                 def sdf = new SimpleDateFormat("yyyyMMdd_HHmmss")
                 def timestring = sdf.format(date)
-                env.WindowsClientShippingName = 'WindowsClientShipping_' + env.P4Stream.substring(13) + '_' + readfilevar + '_' + timestring
-                echo env.WindowsClientShippingName
+                env.LinuxServerShippingName = 'LinuxServerShipping_' + env.P4Stream.substring(13) + '_' + readfilevar + '_' + timestring
+                echo env.LinuxServerShippingName
             }
-            bat 'rename E:\\ReDreamPackage %WindowsClientShippingName%'
+            bat 'rename E:\\ReDreamPackage %LinuxServerShippingName%'
 
             build job: 'RemoteBuildCompress', parameters: [
-            string(name: 'DATAPATH', value: 'E:\\'+env.WindowsClientShippingName),
-            string(name: 'ZIPNAME', value: env.WindowsClientShippingName)], wait: false
+            string(name: 'DATAPATH', value: 'E:\\'+env.LinuxServerShippingName),
+            string(name: 'ZIPNAME', value: env.LinuxServerShippingName)], wait: false
 
-            bat 'python D:\\_BuildTools\\Python\\ReportSuccess.py WindowsClientShipping WindowsClientShipping'
+            bat 'python D:\\_BuildTools\\Python\\ReportSuccess.py LinuxServerShipping LinuxServerShipping'
         }
         return;
 
@@ -255,6 +249,44 @@ def call(body) {
             string(name: 'ZIPNAME', value: env.LinuxServerDevName+'.tar')], wait: false
 
             bat 'python D:\\_BuildTools\\Python\\ReportSuccess.py LinuxServerDev LinuxServerDev'
+        }
+
+        stage('WindowsClientShipping') {
+            bat '"%UNREAL_SOURCECODE_DIR%\\Engine\\Build\\BatchFiles\\RunUAT.bat" BuildCookRun -project=%UNREAL_GAME_DIR% -noP4 -platform=Win64 -clientconfig=Shipping -cook -pak -build -stage -archive -archivedirectory=%UNREAL_BUILD_DIR% -utf8output -compressed -prereqs -iterate -AdditionalCookerOptions=-BUILDMACHINE || python D:\\_BuildTools\\Python\\ReportFailure.py WindowsClientShipping WindowsClientShipping'
+
+            bat '''
+                xcopy D:\\_BuildTools\\TrueSkyLib %UNREAL_BUILD_DIR%\\WindowsNoEditor\\Engine /s /e /y
+                E:
+                cd %UNREAL_BUILD_DIR%\\WindowsNoEditor
+                del ReDream.exe
+                cd ReDream\\Binaries\\Win64
+                rename ReDream-Win64-Shipping.exe ReDream.exe
+
+                xcopy D:\\_BuildTools\\EAC\\_EACClient %UNREAL_BUILD_DIR%\\WindowsNoEditor /s /e /y
+                copy D:\\_BuildTools\\SteamSDK\\installscript.vdf %UNREAL_BUILD_DIR%\\WindowsNoEditor\\ /y
+                '''
+            
+            bat '''
+                D:
+                cd D:\\_BuildTools\\EAC\\AntiCheatSDK\\Client\\HashTool
+                eac_hashtool.exe
+                '''
+
+            dir('D:\\_BuildTools\\temp') {
+                def readfilevar = readFile('BuildVersion.txt').replaceAll("\\s","")
+                def date = new Date()
+                def sdf = new SimpleDateFormat("yyyyMMdd_HHmmss")
+                def timestring = sdf.format(date)
+                env.WindowsClientShippingName = 'WindowsClientShipping_' + env.P4Stream.substring(13) + '_' + readfilevar + '_' + timestring
+                echo env.WindowsClientShippingName
+            }
+            bat 'rename E:\\ReDreamPackage %WindowsClientShippingName%'
+
+            build job: 'RemoteBuildCompress', parameters: [
+            string(name: 'DATAPATH', value: 'E:\\'+env.WindowsClientShippingName),
+            string(name: 'ZIPNAME', value: env.WindowsClientShippingName)], wait: false
+
+            bat 'python D:\\_BuildTools\\Python\\ReportSuccess.py WindowsClientShipping WindowsClientShipping'
         }
     }
 }
