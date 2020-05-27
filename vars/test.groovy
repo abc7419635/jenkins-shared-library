@@ -7,7 +7,7 @@ def call(body) {
             tz = TimeZone.getTimeZone("Asia/Taipei")
             def date = new Date()
             def sdf = new SimpleDateFormat("yyyyMMdd_HHmmss")
-            def timestring = sdf.format(date)
+            def timestring = sdf.format(date, timezone=tz)
 
             println timestring
         }
