@@ -53,7 +53,7 @@ def saySomething() {
 def call(body) {
     node('RemoteBuildPC') {
         stage('Test') {
-            echo 'OK'
+            error 'OK'
         }
         return;
 
