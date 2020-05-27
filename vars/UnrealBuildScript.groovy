@@ -145,7 +145,7 @@ def call(body) {
 
             dir('D:\\_BuildTools\\temp') {
                 def readfilevar = readFile('BuildVersion.txt').replaceAll("\\s","")
-                def date = new Date()
+                def date = new Date(Calendar.getInstance().getTimeInMillis() + (8 * 60 * 60 * 1000))
                 def sdf = new SimpleDateFormat("yyyyMMdd_HHmmss")
                 def timestring = sdf.format(date)
                 env.WindowsClientDevName = 'WindowsClientDev_' + env.P4Stream.substring(13) + '_' + readfilevar + '_' + timestring
@@ -169,7 +169,7 @@ def call(body) {
             bat 'echo ReDream\\Binaries\\Win64\\ReDreamServer.exe /Game/Main/Maps/Scn01/MAP_Scn01_EA_BC -log networkprofiler=true > %UNREAL_BUILD_DIR%\\WindowsServer\\ReDreamServer.bat'
             dir('D:\\_BuildTools\\temp') {
                 def readfilevar = readFile('BuildVersion.txt').replaceAll("\\s","")
-                def date = new Date()
+                def date = new Date(Calendar.getInstance().getTimeInMillis() + (8 * 60 * 60 * 1000))
                 def sdf = new SimpleDateFormat("yyyyMMdd_HHmmss")
                 def timestring = sdf.format(date)
                 env.WindowsServerDevName = 'WindowsServerDev_' + env.P4Stream.substring(13) + '_' + readfilevar + '_' + timestring
@@ -207,7 +207,7 @@ def call(body) {
 
             dir('D:\\_BuildTools\\temp') {
                 def readfilevar = readFile('BuildVersion.txt').replaceAll("\\s","")
-                def date = new Date()
+                def date = new Date(Calendar.getInstance().getTimeInMillis() + (8 * 60 * 60 * 1000))
                 def sdf = new SimpleDateFormat("yyyyMMdd_HHmmss")
                 def timestring = sdf.format(date)
                 env.LinuxServerDevName = 'LinuxServerDev_' + env.P4Stream.substring(13) + '_' + readfilevar + '_' + timestring
@@ -245,7 +245,7 @@ def call(body) {
 
             dir('D:\\_BuildTools\\temp') {
                 def readfilevar = readFile('BuildVersion.txt').replaceAll("\\s","")
-                def date = new Date()
+                def date = new Date(Calendar.getInstance().getTimeInMillis() + (8 * 60 * 60 * 1000))
                 def sdf = new SimpleDateFormat("yyyyMMdd_HHmmss")
                 def timestring = sdf.format(date)
                 env.WindowsClientShippingName = 'WindowsClientShipping_' + env.P4Stream.substring(13) + '_' + readfilevar + '_' + timestring
@@ -270,7 +270,7 @@ def call(body) {
 
             dir('D:\\_BuildTools\\temp') {
                 def readfilevar = readFile('BuildVersion.txt').replaceAll("\\s","")
-                def date = new Date()
+                def date = new Date(Calendar.getInstance().getTimeInMillis() + (8 * 60 * 60 * 1000))
                 def sdf = new SimpleDateFormat("yyyyMMdd_HHmmss")
                 def timestring = sdf.format(date)
                 env.LinuxServerShippingName = 'LinuxServerShipping_' + env.P4Stream.substring(13) + '_' + readfilevar + '_' + timestring

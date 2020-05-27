@@ -64,7 +64,7 @@ def call(body) {
         }
 
         stage('Compress') {
-            def date = new Date()
+            def date = new Date(Calendar.getInstance().getTimeInMillis() + (8 * 60 * 60 * 1000))
             def sdf = new SimpleDateFormat("yyyyMMdd_HHmmss")
             def timestring = sdf.format(date)
             env.ZIPFILEPATH = env.P4RootDir + '\\GameModel\\DeploymentPack\\Release_' + env.P4Stream.substring(13) + '_' + env.BUILD_NUMBER + '_' + timestring
