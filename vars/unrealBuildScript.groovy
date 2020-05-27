@@ -36,7 +36,7 @@ pipeline {
     post {
         failure {
             script {
-                unrealBuildScript.saySomething()
+                unrealBuildScript.buildfailure()
             }
         }
     }
@@ -46,16 +46,16 @@ pipeline {
 
 import java.text.SimpleDateFormat
 
-def saySomething() {
+def buildfailure() {
     println 'error error error error error'
 }
 
 def call(body) {
     node('RemoteBuildPC') {
-        stage('Test') {
+        /*stage('Test') {
             error 'OK'
         }
-        return;
+        return;*/
 
         stage('Sync Perforce') {
             if(env.SkipP4Update=='false')
