@@ -36,7 +36,7 @@ def call(body) {
                 D:
                 cd D:\\_BuildTools\\SteamSDK\\sdk\\tools\\ContentBuilder
                 run_build_Steam.bat
-                python D:\\_BuildTools\\Python\\DiscordNotifySteamVersion.py %GAME_PATH% %ALIVE_BRANCH%)
+                python D:\\_BuildTools\\Python\\DiscordNotifySteamVersionV2.py %GAME_PATH% %ALIVE_BRANCH%)
                 '''
         }
     }
