@@ -160,9 +160,7 @@ def call(body) {
                 '''
 
             bat '''
-                D:
-                cd D:\\_BuildTools\\EAC\\AntiCheatSDK\\Client\\HashTool
-                eac_hashtool.exe
+                D:\\_BuildTools\\EAC\\AntiCheatSDK\\Client\\HashTool\\eac_hashtool.exe -working_dir %UNREAL_BUILD_DIR%\\WindowsNoEditor\\
                 '''
 
             dir('D:\\_BuildTools\\temp') {
@@ -174,7 +172,7 @@ def call(body) {
                 echo env.WindowsClientDevName
             }
 
-            bat 'rename E:\\ReDreamPackage %WindowsClientDevName%'
+            bat 'rename %UNREAL_BUILD_DIR% %WindowsClientDevName%'
 
             build job: 'RemoteBuildCompress', parameters: [string(name: 'DATAPATH', value: 'E:\\'+env.WindowsClientDevName),
             string(name: 'ZIPNAME', value: env.WindowsClientDevName),
@@ -213,7 +211,7 @@ def call(body) {
                 env.LinuxServerDevName = 'LinuxServerDev_' + env.P4Stream.substring(13) + '_' + readfilevar + '_' + timestring
                 echo env.LinuxServerDevName
             }
-            bat 'rename E:\\ReDreamPackage %LinuxServerDevName%'
+            bat 'rename %UNREAL_BUILD_DIR% %LinuxServerDevName%'
 
             build job: 'RemoteBuildCompress', parameters: [
             string(name: 'DATAPATH', value: 'E:\\'+env.LinuxServerDevName),
@@ -237,7 +235,7 @@ def call(body) {
                 env.WindowsServerDevName = 'WindowsServerDev_' + env.P4Stream.substring(13) + '_' + readfilevar + '_' + timestring
                 echo env.WindowsServerDevName
             }
-            bat 'rename E:\\ReDreamPackage %WindowsServerDevName%'
+            bat 'rename %UNREAL_BUILD_DIR% %WindowsServerDevName%'
 
             build job: 'RemoteBuildCompress', parameters: [string(name: 'DATAPATH', value: 'E:\\'+env.WindowsServerDevName),
             string(name: 'ZIPNAME', value: env.WindowsServerDevName)], wait: false
@@ -261,9 +259,7 @@ def call(body) {
                 '''
             
             bat '''
-                D:
-                cd D:\\_BuildTools\\EAC\\AntiCheatSDK\\Client\\HashTool
-                eac_hashtool.exe
+                D:\\_BuildTools\\EAC\\AntiCheatSDK\\Client\\HashTool\\eac_hashtool.exe -working_dir %UNREAL_BUILD_DIR%\\WindowsNoEditor\\
                 '''
 
             dir('D:\\_BuildTools\\temp') {
@@ -274,7 +270,7 @@ def call(body) {
                 env.WindowsClientShippingName = 'WindowsClientShipping_' + env.P4Stream.substring(13) + '_' + readfilevar + '_' + timestring
                 echo env.WindowsClientShippingName
             }
-            bat 'rename E:\\ReDreamPackage %WindowsClientShippingName%'
+            bat 'rename %UNREAL_BUILD_DIR% %WindowsClientShippingName%'
 
             build job: 'RemoteBuildCompress', parameters: [
             string(name: 'DATAPATH', value: 'E:\\'+env.WindowsClientShippingName),
@@ -300,7 +296,7 @@ def call(body) {
                 env.LinuxServerShippingName = 'LinuxServerShipping_' + env.P4Stream.substring(13) + '_' + readfilevar + '_' + timestring
                 echo env.LinuxServerShippingName
             }
-            bat 'rename E:\\ReDreamPackage %LinuxServerShippingName%'
+            bat 'rename %UNREAL_BUILD_DIR% %LinuxServerShippingName%'
 
             build job: 'RemoteBuildCompress', parameters: [
             string(name: 'DATAPATH', value: 'E:\\'+env.LinuxServerShippingName),
