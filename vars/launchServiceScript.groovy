@@ -100,7 +100,7 @@ def call(body) {
 
                     cd D:\\Docker\\image\\launchserver
 
-                    docker build -t asia.gcr.io/jfi-staging/launchserver
+                    docker build -t asia.gcr.io/jfi-staging/launchserver .
 
                     docker push asia.gcr.io/jfi-staging/launchserver
 
