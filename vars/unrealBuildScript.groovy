@@ -160,7 +160,9 @@ def call(body) {
                 '''
 
             bat '''
-                D:\\_BuildTools\\EAC\\AntiCheatSDK\\Client\\HashTool\\eac_hashtool.exe -working_dir %UNREAL_BUILD_DIR%\\WindowsNoEditor\\
+                D:
+                cd D:\\_BuildTools\\EAC\\AntiCheatSDK\\Client\\HashTool
+                eac_hashtool.exe -working_dir %UNREAL_BUILD_DIR%\\WindowsNoEditor\\
                 '''
 
             dir('D:\\_BuildTools\\temp') {
@@ -248,18 +250,18 @@ def call(body) {
 
             bat '''
                 xcopy D:\\_BuildTools\\TrueSkyLib %UNREAL_BUILD_DIR%\\WindowsNoEditor\\Engine /s /e /y
-                E:
-                cd %UNREAL_BUILD_DIR%\\WindowsNoEditor
-                del ReDream.exe
-                cd ReDream\\Binaries\\Win64
-                rename ReDream-Win64-Shipping.exe ReDream.exe
+                
+                del %UNREAL_BUILD_DIR%\\WindowsNoEditor\\ReDream.exe
+                rename %UNREAL_BUILD_DIR%\\WindowsNoEditor\\ReDream\\Binaries\\Win64\\ReDream-Win64-Shipping.exe ReDream.exe
 
                 xcopy D:\\_BuildTools\\EAC\\_EACClient %UNREAL_BUILD_DIR%\\WindowsNoEditor /s /e /y
                 copy D:\\_BuildTools\\SteamSDK\\installscript.vdf %UNREAL_BUILD_DIR%\\WindowsNoEditor\\ /y
                 '''
             
             bat '''
-                D:\\_BuildTools\\EAC\\AntiCheatSDK\\Client\\HashTool\\eac_hashtool.exe -working_dir %UNREAL_BUILD_DIR%\\WindowsNoEditor\\
+                D:
+                cd D:\\_BuildTools\\EAC\\AntiCheatSDK\\Client\\HashTool
+                eac_hashtool.exe -working_dir %UNREAL_BUILD_DIR%\\WindowsNoEditor\\
                 '''
 
             dir('D:\\_BuildTools\\temp') {
