@@ -12,6 +12,7 @@ pipeline {
         string(name: 'P4RootDir', defaultValue: 'D:\\RD_GameModel', description: '')
         string(name: 'BOTO_CONFIG', defaultValue: 'D:\\JenkinsRemoteRoot\\.boto', description: '')
         string(name: 'GSPath', defaultValue: 'gs://server_model_release/', description: '')
+        string(name: 'StorePath', defaultValue: 'D:\\DeploymentPack', description: '')
         booleanParam(name: 'DeployToStaging', defaultValue: false, description: '')
     }
     
@@ -68,7 +69,7 @@ def call(body) {
             def date = new Date(Calendar.getInstance().getTimeInMillis() + (8 * 60 * 60 * 1000))
             def sdf = new SimpleDateFormat("yyyyMMdd_HHmmss")
             def timestring = sdf.format(date)
-            env.ZIPFILEPATH = env.P4RootDir + '\\GameModel\\DeploymentPack\\Release_' + env.P4Stream.substring(13) + '_' + env.BUILD_NUMBER + '_' + timestring
+            env.ZIPFILEPATH = env.StorePath + '\\Release_' + env.P4Stream.substring(13) + '_' + env.BUILD_NUMBER + '_' + timestring
             echo env.ZIPFILEPATH
             
             bat '''                
