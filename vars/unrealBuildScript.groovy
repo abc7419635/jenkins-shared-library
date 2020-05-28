@@ -52,6 +52,18 @@ def buildfailure() {
 
 def call(body) {
     node('RemoteBuildPC') {
+        /*stage('Test') {
+            echo env.P4_CHANGELIST
+            echo env.P4_CLIENT
+            echo env.P4_PORT
+            echo env.P4_ROOT
+            echo env.P4_USER
+            echo env.P4_TICKET
+            echo env.P4_REVIEW
+            echo env.P4_REVIEW_TYPE
+        }
+        return;*/
+
         stage('Sync Perforce') {
             if(env.SkipP4Update=='false')
             {
@@ -68,18 +80,6 @@ def call(body) {
                 echo 'Skip Sync Perforce'
             }
         }
-
-        stage('Test') {
-            echo env.P4_CHANGELIST
-            echo env.P4_CLIENT
-            echo env.P4_PORT
-            echo env.P4_ROOT
-            echo env.P4_USER
-            echo env.P4_TICKET
-            echo env.P4_REVIEW
-            echo env.P4_REVIEW_TYPE
-        }
-        return;
 
         stage('Increase Version') {
             if(env.SkipP4Update=='false')
