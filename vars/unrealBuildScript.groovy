@@ -130,16 +130,16 @@ def call(body) {
 
         stage('ExportDataTable') {
             bat '''
-                set P4USER=programmer
-                set P4PASSWD=F5E023356D8072F0A3521F83E5678CE0
-                set P4PORT=10.2.100.220:1001
-                set P4CLIENT=RD_DailyBuild
+                set P4USER=%P4_USER%
+                set P4PASSWD=%P4_TICKET%
+                set P4PORT=%P4_PORT%
+                set P4CLIENT=%P4_CLIENT%
 
-                p4 edit -c default d:\\RD_DailyBuild\\GameModel\\Model.Server\\ServerData\\MatchModeData.json
-                p4 edit -c default d:\\RD_DailyBuild\\GameModel\\Model.Server\\ServerData\\DataT_Zone.json
+                p4 edit -c default %P4_ROOT%\\GameModel\\Model.Server\\ServerData\\MatchModeData.json
+                p4 edit -c default %P4_ROOT%\\GameModel\\Model.Server\\ServerData\\DataT_Zone.json
 
-                call %UNREAL_SOURCECODE_DIR%\\Engine\\Binaries\\Win64\\UE4Editor-Cmd.exe %UNREAL_GAME_DIR% -run=ExportDataTable -datapath=/Game/Main/Gameplay/GameData/DataT_MatchMode -outpath=D:/RD_DailyBuild/GameModel/Model.Server/ServerData/MatchModeData.json
-                call %UNREAL_SOURCECODE_DIR%\\Engine\\Binaries\\Win64\\UE4Editor-Cmd.exe %UNREAL_GAME_DIR% -run=ExportDataTable -datapath=/Game/Main/Gameplay/GameData/DataT_Zone -outpath=D:/RD_DailyBuild/GameModel/Model.Server/ServerData/DataT_Zone.json
+                call %UNREAL_SOURCECODE_DIR%\\Engine\\Binaries\\Win64\\UE4Editor-Cmd.exe %UNREAL_GAME_DIR% -run=ExportDataTable -datapath=/Game/Main/Gameplay/GameData/DataT_MatchMode -outpath=%P4_ROOT%/GameModel/Model.Server/ServerData/MatchModeData.json
+                call %UNREAL_SOURCECODE_DIR%\\Engine\\Binaries\\Win64\\UE4Editor-Cmd.exe %UNREAL_GAME_DIR% -run=ExportDataTable -datapath=/Game/Main/Gameplay/GameData/DataT_Zone -outpath=%P4_ROOT%/GameModel/Model.Server/ServerData/DataT_Zone.json
 
                 p4 revert -a -c default
                 p4 submit -d "[AutoBuild] update MatchModeData.json DataT_Zone.json" -f revertunchanged || exit 0
