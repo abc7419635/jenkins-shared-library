@@ -133,6 +133,7 @@ def call(body) {
                 call %UNREAL_SOURCECODE_DIR%\\Engine\\Binaries\\Win64\\UE4Editor-Cmd.exe %UNREAL_GAME_DIR% -run=ExportDataTable -datapath=/Game/Main/Gameplay/GameData/DataT_MatchMode -outpath=D:/RD_DailyBuild/GameModel/Model.Server/ServerData/MatchModeData.json
                 call %UNREAL_SOURCECODE_DIR%\\Engine\\Binaries\\Win64\\UE4Editor-Cmd.exe %UNREAL_GAME_DIR% -run=ExportDataTable -datapath=/Game/Main/Gameplay/GameData/DataT_Zone -outpath=D:/RD_DailyBuild/GameModel/Model.Server/ServerData/DataT_Zone.json
 
+                p4 revert -a -c default
                 p4 submit -d "[AutoBuild] update MatchModeData.json DataT_Zone.json" -f revertunchanged || exit 0
                 '''
             
