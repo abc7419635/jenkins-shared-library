@@ -171,7 +171,8 @@ def call(body) {
             bat 'rename E:\\ReDreamPackage %WindowsClientDevName%'
 
             build job: 'RemoteBuildCompress', parameters: [string(name: 'DATAPATH', value: 'E:\\'+env.WindowsClientDevName),
-            string(name: 'ZIPNAME', value: env.WindowsClientDevName)], wait: false
+            string(name: 'ZIPNAME', value: env.WindowsClientDevName),
+            string(name: 'SteamBranch', value: 'development')], wait: false
 
             bat 'python D:\\_BuildTools\\Python\\ReportSuccess.py WindowsClientDev'
         }
@@ -271,7 +272,8 @@ def call(body) {
 
             build job: 'RemoteBuildCompress', parameters: [
             string(name: 'DATAPATH', value: 'E:\\'+env.WindowsClientShippingName),
-            string(name: 'ZIPNAME', value: env.WindowsClientShippingName)], wait: false
+            string(name: 'ZIPNAME', value: env.WindowsClientShippingName),
+            string(name: 'SteamBranch', value: 'shipping')], wait: false
 
             bat 'python D:\\_BuildTools\\Python\\ReportSuccess.py WindowsClientShipping'
         }
