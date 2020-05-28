@@ -12,7 +12,7 @@ pipeline {
         string(name: 'P4RootDir', defaultValue: 'D:\\RD_GameModel', description: '')
         string(name: 'BOTO_CONFIG', defaultValue: 'D:\\JenkinsRemoteRoot\\.boto', description: '')
         string(name: 'GSPath', defaultValue: 'gs://server_model_release/', description: '')
-        string(name: 'StorePath', defaultValue: 'D:\\DeploymentPack', description: '')
+        string(name: 'StorePath', defaultValue: '\\\\10.2.11.61\\DeploymentPack', description: '')
         booleanParam(name: 'DeployToStaging', defaultValue: false, description: '')
     }
     
