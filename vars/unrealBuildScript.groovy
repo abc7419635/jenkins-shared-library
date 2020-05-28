@@ -204,7 +204,6 @@ def call(body) {
                 copy /Y \\\\10.2.11.122\\D\\_Launch\\RDSetting.ini \\\\10.2.11.122\\D\\_Launch\\LinuxServer\\ReDream\\Saved\\Config\\LinuxServer\\
                 '''
 
-
             dir('D:\\_BuildTools\\temp') {
                 def readfilevar = readFile('BuildVersion.txt').replaceAll("\\s","")
                 def date = new Date(Calendar.getInstance().getTimeInMillis() + (8 * 60 * 60 * 1000))
@@ -218,6 +217,10 @@ def call(body) {
             build job: 'RemoteBuildCompress', parameters: [
             string(name: 'DATAPATH', value: 'E:\\'+env.LinuxServerDevName),
             string(name: 'ZIPNAME', value: env.LinuxServerDevName+'.tar')], wait: false
+
+            build job: 'RD_LaunchServiceScript', parameters: [
+            booleanParam(name: 'DeployToStaging', value: true),
+            booleanParam(name: 'DeployToLocal', value: true)], wait: false
 
             bat 'python D:\\_BuildTools\\Python\\ReportSuccess.py LinuxServerDev'
         }
