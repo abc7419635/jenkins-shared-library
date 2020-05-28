@@ -176,29 +176,6 @@ def call(body) {
             bat 'python D:\\_BuildTools\\Python\\ReportSuccess.py WindowsClientDev'
         }
 
-        stage('WindowsServerDev') {
-            bat '"%UNREAL_SOURCECODE_DIR%\\Engine\\Build\\BatchFiles\\RunUAT.bat" BuildCookRun -project=%UNREAL_GAME_DIR% -noP4 -platform=Win64 -serverconfig=Development -cook -pak -build -stage -server -serverplatform=Win64 -noclient -archive -archivedirectory=%UNREAL_BUILD_DIR% -utf8output -compressed -prereqs -DUMPALLWARNINGS -iterate -AdditionalCookerOptions=-BUILDMACHINE || python D:\\_BuildTools\\Python\\ReportFailure.py WindowsServerDev'
-            bat '''
-                xcopy D:\\_BuildTools\\EAC\\_EACWinServer %UNREAL_BUILD_DIR%\\WindowsServer /s /e /y
-                xcopy D:\\RD_DailyBuild\\Game\\ReDream\\Binaries\\WindowsDevelopmentConfig\\RDSetting.ini %UNREAL_BUILD_DIR%\\WindowsServer\\ReDream\\Saved\\Config\\WindowsServer\\ /s /e /y
-                '''
-            bat 'echo ReDream\\Binaries\\Win64\\ReDreamServer.exe /Game/Main/Maps/Scn01/MAP_Scn01_EA_BC -log networkprofiler=true > %UNREAL_BUILD_DIR%\\WindowsServer\\ReDreamServer.bat'
-            dir('D:\\_BuildTools\\temp') {
-                def readfilevar = readFile('BuildVersion.txt').replaceAll("\\s","")
-                def date = new Date(Calendar.getInstance().getTimeInMillis() + (8 * 60 * 60 * 1000))
-                def sdf = new SimpleDateFormat("yyyyMMdd_HHmmss")
-                def timestring = sdf.format(date)
-                env.WindowsServerDevName = 'WindowsServerDev_' + env.P4Stream.substring(13) + '_' + readfilevar + '_' + timestring
-                echo env.WindowsServerDevName
-            }
-            bat 'rename E:\\ReDreamPackage %WindowsServerDevName%'
-
-            build job: 'RemoteBuildCompress', parameters: [string(name: 'DATAPATH', value: 'E:\\'+env.WindowsServerDevName),
-            string(name: 'ZIPNAME', value: env.WindowsServerDevName)], wait: false
-
-            bat 'python D:\\_BuildTools\\Python\\ReportSuccess.py WindowsServerDev'
-        }
-
         stage('LinuxServerDev') {
             bat '"%UNREAL_SOURCECODE_DIR%\\Engine\\Build\\BatchFiles\\RunUAT.bat" BuildCookRun -project=%UNREAL_GAME_DIR% -noP4 -platform=Linux -serverconfig=Development -cook -pak -build -stage -server -serverplatform=Linux -noclient -archive -archivedirectory=%UNREAL_BUILD_DIR% -utf8output -compressed -prereqs -iterate -AdditionalCookerOptions=-BUILDMACHINE || python D:\\_BuildTools\\Python\\ReportFailure.py LinuxServerDev LinuxServerDev'
             bat '''
@@ -236,6 +213,29 @@ def call(body) {
             string(name: 'ZIPNAME', value: env.LinuxServerDevName+'.tar')], wait: false
 
             bat 'python D:\\_BuildTools\\Python\\ReportSuccess.py LinuxServerDev'
+        }
+
+        stage('WindowsServerDev') {
+            bat '"%UNREAL_SOURCECODE_DIR%\\Engine\\Build\\BatchFiles\\RunUAT.bat" BuildCookRun -project=%UNREAL_GAME_DIR% -noP4 -platform=Win64 -serverconfig=Development -cook -pak -build -stage -server -serverplatform=Win64 -noclient -archive -archivedirectory=%UNREAL_BUILD_DIR% -utf8output -compressed -prereqs -DUMPALLWARNINGS -iterate -AdditionalCookerOptions=-BUILDMACHINE || python D:\\_BuildTools\\Python\\ReportFailure.py WindowsServerDev'
+            bat '''
+                xcopy D:\\_BuildTools\\EAC\\_EACWinServer %UNREAL_BUILD_DIR%\\WindowsServer /s /e /y
+                xcopy D:\\RD_DailyBuild\\Game\\ReDream\\Binaries\\WindowsDevelopmentConfig\\RDSetting.ini %UNREAL_BUILD_DIR%\\WindowsServer\\ReDream\\Saved\\Config\\WindowsServer\\ /s /e /y
+                '''
+            bat 'echo ReDream\\Binaries\\Win64\\ReDreamServer.exe /Game/Main/Maps/Scn01/MAP_Scn01_EA_BC -log networkprofiler=true > %UNREAL_BUILD_DIR%\\WindowsServer\\ReDreamServer.bat'
+            dir('D:\\_BuildTools\\temp') {
+                def readfilevar = readFile('BuildVersion.txt').replaceAll("\\s","")
+                def date = new Date(Calendar.getInstance().getTimeInMillis() + (8 * 60 * 60 * 1000))
+                def sdf = new SimpleDateFormat("yyyyMMdd_HHmmss")
+                def timestring = sdf.format(date)
+                env.WindowsServerDevName = 'WindowsServerDev_' + env.P4Stream.substring(13) + '_' + readfilevar + '_' + timestring
+                echo env.WindowsServerDevName
+            }
+            bat 'rename E:\\ReDreamPackage %WindowsServerDevName%'
+
+            build job: 'RemoteBuildCompress', parameters: [string(name: 'DATAPATH', value: 'E:\\'+env.WindowsServerDevName),
+            string(name: 'ZIPNAME', value: env.WindowsServerDevName)], wait: false
+
+            bat 'python D:\\_BuildTools\\Python\\ReportSuccess.py WindowsServerDev'
         }
 
         stage('WindowsClientShipping') {
