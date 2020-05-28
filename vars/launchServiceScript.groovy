@@ -7,7 +7,7 @@ pipeline {
         booleanParam(name: 'Refresh', defaultValue: false, description: '')
         booleanParam(name: 'SkipP4Update', defaultValue: false, description: '')
         string(name: 'P4Credential', defaultValue: 'programmer', description: '')
-        string(name: 'P4Workspace', defaultValue: 'RD_GameModel', description: '')
+        string(name: 'P4WorkspaceName', defaultValue: 'RD_GameModel', description: '')
         choice(name: 'P4Stream', choices: ['//GD2ReDream/GameModel', '//GD2ReDream/RD_GameModelCCB'], description: '')
         string(name: 'P4RootDir', defaultValue: 'D:\\RD_GameModel', description: '')
         string(name: 'BOTO_CONFIG', defaultValue: 'D:\\JenkinsRemoteRoot\\.boto', description: '')
@@ -42,7 +42,7 @@ def call(body) {
                 dir(env.P4RootDir) {
                     checkout perforce(credential: env.P4Credential,
                     populate: syncOnly(force: false, have: true, modtime: false, quiet: false, revert: false),
-                    workspace: manualSpec(charset: 'utf8', name: env.P4Workspace, pinHost: true,
+                    workspace: manualSpec(charset: 'utf8', name: env.P4WorkspaceName, pinHost: true,
                     spec: clientSpec(allwrite: false, backup: true, changeView: '', clobber: true, compress: false, line: 'UNIX', locked: false, modtime: false, rmdir: true, serverID: '',
                     streamName: env.P4Stream, type: 'WRITABLE', view: '')))
                 }
