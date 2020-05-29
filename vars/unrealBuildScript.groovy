@@ -98,7 +98,7 @@ def call(body) {
 
                     set CheckOutFile=%P4_ROOT%\\Game\\ReDream\\Config\\DefaultGame.ini
                     p4 edit -c default %CheckOutFile%
-                    %UNREAL_SOURCECODE_DIR%\\Engine\\Binaries\\ThirdParty\\Python\\Win64\\python.exe D:\\_BuildTools\\Python\\configReaderV2.py %BUILD_ID% %ContentVersion% %CheckOutFile%
+                    %UNREAL_SOURCECODE_DIR%\\Engine\\Binaries\\ThirdParty\\Python\\Win64\\python.exe D:\\_BuildTools\\Python\\configReaderV3.py %BUILD_ID% %ContentVersion% %CheckOutFile%
                     p4 submit -d "[AutoBuild] Auto Increase Version %BUILD_ID% ContentVer:%ContentVersion%" -f revertunchanged
 
                     echo %BUILD_ID% > "D:\\_BuildTools\\temp\\BuildVersion.txt"
