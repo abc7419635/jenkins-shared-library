@@ -63,8 +63,10 @@ def call(body) {
 
         env.UNREAL_GAME_PROJECT = env.P4RootDir + '\\Game\\' + env.UNREAL_PROJECT_NAME + '\\' + env.UNREAL_PROJECT_NAME + '.uproject'
         env.UNREAL_SOURCE_ENGINE_DIR = env.P4RootDir + '\\Game\\Engine'
+        env.UNREAL_COOK_LOG_PATH = env.UNREAL_SOURCE_ENGINE_DIR + '\\Programs\\AutomationTool\\Saved\\Logs\\Log.txt'
         echo env.UNREAL_GAME_PROJECT
         echo env.UNREAL_SOURCE_ENGINE_DIR
+        echo env.UNREAL_COOK_LOG_PATH
 
         stage('Sync Perforce') {
             if(env.SkipP4Update=='false') {
@@ -123,9 +125,9 @@ def call(body) {
             bat '''
                 if "%CLEARCOOK%"=="true" (rmdir /s/q %P4RootDir%\\Game\\ReDream\\Saved\\Cooked)
 
-                %UNREAL_SOURCE_ENGINE_DIR%\\Binaries\\Win64\\UE4Editor-Cmd.exe %UNREAL_GAME_PROJECT% -run=Cook  -TargetPlatform=WindowsNoEditor+WindowsServer+LinuxServer -fileopenlog -unversioned -BUILDMACHINE -stdout -CrashForUAT -unattended -NoLogTimes -UTF8Output -iterate -iterateshash -abslog=%UNREAL_SOURCE_ENGINE_DIR%\\Programs\\AutomationTool\\Saved\\Logs\\Log.txt 
+                %UNREAL_SOURCE_ENGINE_DIR%\\Binaries\\Win64\\UE4Editor-Cmd.exe %UNREAL_GAME_PROJECT% -run=Cook  -TargetPlatform=WindowsNoEditor+WindowsServer+LinuxServer -fileopenlog -unversioned -BUILDMACHINE -stdout -CrashForUAT -unattended -NoLogTimes -UTF8Output -iterate -iterateshash -abslog=%UNREAL_COOK_LOG_PATH% 
 
-                python D:\\_BuildTools\\Python\\DiscordNotifyCooksummary.py || exit 1
+                python D:\\_BuildTools\\Python\\DiscordNotifyCooksummaryV2.py %UNREAL_COOK_LOG_PATH% || exit 1
                 '''
             }
         }
