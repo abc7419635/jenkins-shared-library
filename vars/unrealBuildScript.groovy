@@ -160,7 +160,7 @@ def call(body) {
                 string(name: 'BOTO_CONFIG', value: env.BOTO_CONFIG),
                 booleanParam(name: 'DeployToStaging', value: true)], wait: false*/
 
-                uild job: 'RD_GameModelServiceScript', parameters: [
+                build job: 'RD_GameModelServiceScript', parameters: [
                 booleanParam(name: 'DeployToStaging', value: true)], wait: false
 
             }
