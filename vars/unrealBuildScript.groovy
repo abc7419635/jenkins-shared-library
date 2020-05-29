@@ -7,14 +7,14 @@ pipeline {
         booleanParam(name: 'Refresh', defaultValue: false, description: '')
         booleanParam(name: 'SkipP4Update', defaultValue: false, description: '')
         string(name: 'P4Credential', defaultValue: 'programmer', description: '')
-        string(name: 'P4WorkspaceName', defaultValue: 'RD_DailyBuild', description: '')
-        choice(name: 'P4Stream', choices: ['//GD2ReDream/DailyBuild'], description: '')
-        string(name: 'P4RootDir', defaultValue: 'D:\\RD_DailyBuild', description: '')
+        string(name: 'P4WorkspaceName', defaultValue: 'RD_DailyMain', description: '')
+        string(name: 'P4Stream', defaultValue: '//GD2ReDream/DailyBuild', description: '')
+        string(name: 'P4RootDir', defaultValue: 'F:\\RD_DailyMain', description: '')
         string(name: 'BOTO_CONFIG', defaultValue: 'D:\\JenkinsRemoteRoot\\.boto', description: '')
 
         string(name: 'UNREAL_BUILD_DIR', defaultValue: 'E:\\ReDreamPackage', description: '')
-        string(name: 'UNREAL_GAME_DIR', defaultValue: 'D:\\RD_DailyBuild\\Game\\ReDream\\ReDream.uproject', description: '')
-        string(name: 'UNREAL_SOURCECODE_DIR', defaultValue: 'D:\\RD_DailyBuild\\Game', description: '')
+        string(name: 'UNREAL_GAME_DIR', defaultValue: 'F:\\RD_DailyMain\\Game\\ReDream\\ReDream.uproject', description: '')
+        string(name: 'UNREAL_SOURCECODE_DIR', defaultValue: 'F:\\RD_DailyMain\\Game', description: '')
 
         booleanParam(name: 'CLEARCOOK', defaultValue: false, description: '')
     }

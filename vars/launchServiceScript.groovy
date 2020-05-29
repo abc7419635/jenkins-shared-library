@@ -8,7 +8,7 @@ pipeline {
         booleanParam(name: 'SkipP4Update', defaultValue: false, description: '')
         string(name: 'P4Credential', defaultValue: 'programmer', description: '')
         string(name: 'P4WorkspaceName', defaultValue: 'RD_GameModel', description: '')
-        choice(name: 'P4Stream', choices: ['//GD2ReDream/GameModel', '//GD2ReDream/RD_GameModelCCB'], description: '')
+        string(name: 'P4Stream', defaultValue: '//GD2ReDream/GameModel', description: '')
         string(name: 'P4RootDir', defaultValue: 'D:\\RD_GameModel', description: '')
         string(name: 'BOTO_CONFIG', defaultValue: 'D:\\JenkinsRemoteRoot\\.boto', description: '')
         string(name: 'GSPath', defaultValue: 'gs://server_model_release/', description: '')
