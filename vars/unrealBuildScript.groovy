@@ -150,12 +150,15 @@ def call(body) {
                     p4 submit -d "[AutoBuild] update MatchModeData.json DataT_Zone.json" -f revertunchanged || exit 0
                     '''
 
-                build job: 'RD_GameModelServiceScript', parameters: [
+                /*build job: 'RD_GameModelServiceScript', parameters: [
                 string(name: 'P4Credential', value: env.P4Credential),
                 string(name: 'P4WorkspaceName', value: env.P4WorkspaceName),
                 string(name: 'P4Stream', value: env.P4Stream),
                 string(name: 'P4RootDir', value: env.P4RootDir),
                 string(name: 'BOTO_CONFIG', value: env.BOTO_CONFIG),
+                booleanParam(name: 'DeployToStaging', value: true)], wait: false*/
+
+                uild job: 'RD_GameModelServiceScript', parameters: [
                 booleanParam(name: 'DeployToStaging', value: true)], wait: false
 
             }
@@ -240,12 +243,16 @@ def call(body) {
                 string(name: 'DATAPATH', value: 'E:\\'+env.LinuxServerDevName),
                 string(name: 'ZIPNAME', value: env.LinuxServerDevName+'.tar')], wait: false
 
-                build job: 'RD_LaunchServiceScript', parameters: [
+                /*build job: 'RD_LaunchServiceScript', parameters: [
                 string(name: 'P4Credential', value: env.P4Credential),
                 string(name: 'P4WorkspaceName', value: env.P4WorkspaceName),
                 string(name: 'P4Stream', value: env.P4Stream),
                 string(name: 'P4RootDir', value: env.P4RootDir),
                 string(name: 'BOTO_CONFIG', value: env.BOTO_CONFIG),
+                booleanParam(name: 'DeployToStaging', value: true),
+                booleanParam(name: 'DeployToLocal', value: true)], wait: false*/
+
+                build job: 'RD_LaunchServiceScript', parameters: [
                 booleanParam(name: 'DeployToStaging', value: true),
                 booleanParam(name: 'DeployToLocal', value: true)], wait: false
 
