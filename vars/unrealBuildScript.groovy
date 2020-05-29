@@ -60,8 +60,6 @@ def call(body) {
         echo env.UNREAL_GAME_PROJECT
         echo env.UNREAL_SOURCE_ENGINE_DIR
 
-        return;
-
         stage('Sync Perforce') {
             if(env.SkipP4Update=='false') {
                 dir(env.P4RootDir) {
