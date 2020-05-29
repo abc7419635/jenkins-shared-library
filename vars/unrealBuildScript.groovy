@@ -13,11 +13,7 @@ pipeline {
         string(name: 'BOTO_CONFIG', defaultValue: 'D:\\JenkinsRemoteRoot\\.boto', description: '')
 
         string(name: 'UNREAL_PROJECT_NAME', defaultValue: 'ReDream', description: '')
-
         string(name: 'UNREAL_BUILD_DIR', defaultValue: 'E:\\ReDreamPackage', description: '')
-
-        //string(name: 'UNREAL_GAME_DIR', defaultValue: 'F:\\RD_DailyMain\\Game\\ReDream\\ReDream.uproject', description: '')
-        //string(name: 'UNREAL_SOURCECODE_DIR', defaultValue: 'F:\\RD_DailyMain\\Game', description: '')
 
         booleanParam(name: 'CLEARCOOK', defaultValue: false, description: '')
     }
@@ -54,12 +50,16 @@ def buildfailure() {
 
 def call(body) {
     node('RemoteBuildPC') {
-        stage('Test') {
-            env.UNREAL_GAME_PROJECT = env.P4RootDir + '\\Game\\' + env.UNREAL_PROJECT_NAME + '\\' + env.UNREAL_PROJECT_NAME + '.uproject'
-            env.UNREAL_SOURCECODE_DIR = env.P4RootDir + '\\Game'
-            echo env.UNREAL_GAME_PROJECT
-            echo env.UNREAL_SOURCECODE_DIR
+        /*stage('Test') {
+            
         }
+        return;*/
+
+        env.UNREAL_GAME_PROJECT = env.P4RootDir + '\\Game\\' + env.UNREAL_PROJECT_NAME + '\\' + env.UNREAL_PROJECT_NAME + '.uproject'
+        env.UNREAL_SOURCE_ENGINE_DIR = env.P4RootDir + '\\Game\\Engine'
+        echo env.UNREAL_GAME_PROJECT
+        echo env.UNREAL_SOURCE_ENGINE_DIR
+
         return;
 
         stage('Sync Perforce') {
@@ -96,7 +96,7 @@ def call(body) {
 
                     set CheckOutFile=%P4_ROOT%\\Game\\ReDream\\Config\\DefaultGame.ini
                     p4 edit -c default %CheckOutFile%
-                    %UNREAL_SOURCECODE_DIR%\\Engine\\Binaries\\ThirdParty\\Python\\Win64\\python.exe D:\\_BuildTools\\Python\\configReaderV3.py %BUILD_ID% %ContentVersion% %CheckOutFile%
+                    %UNREAL_SOURCE_ENGINE_DIR%\\Binaries\\ThirdParty\\Python\\Win64\\python.exe D:\\_BuildTools\\Python\\configReaderV3.py %BUILD_ID% %ContentVersion% %CheckOutFile%
                     p4 submit -d "[AutoBuild] Auto Increase Version %BUILD_ID% ContentVer:%ContentVersion%" -f revertunchanged
 
                     echo %BUILD_ID% > "D:\\_BuildTools\\temp\\BuildVersion.txt"
@@ -108,7 +108,7 @@ def call(body) {
         }
 
         stage('Build Editor') {
-            bat '"%UNREAL_SOURCECODE_DIR%\\Engine\\Build\\BatchFiles\\Build.bat" "ReDreamEditor" Win64 Development -WarningsAsErrors %UNREAL_GAME_PROJECT% || python D:\\_BuildTools\\Python\\ReportFailure.py BuildEditor'
+            bat '"%UNREAL_SOURCE_ENGINE_DIR%\\Build\\BatchFiles\\Build.bat" "ReDreamEditor" Win64 Development -WarningsAsErrors %UNREAL_GAME_PROJECT% || python D:\\_BuildTools\\Python\\ReportFailure.py BuildEditor'
             bat 'python D:\\_BuildTools\\Python\\ReportSuccess.py BuildEditor'
         }
 
@@ -116,7 +116,7 @@ def call(body) {
             bat '''
                 if "%CLEARCOOK%"=="true" (rmdir /s/q %P4RootDir%\\Game\\ReDream\\Saved\\Cooked)
 
-                %UNREAL_SOURCECODE_DIR%\\Engine\\Binaries\\Win64\\UE4Editor-Cmd.exe %UNREAL_GAME_PROJECT% -run=Cook  -TargetPlatform=WindowsNoEditor+WindowsServer+LinuxServer -fileopenlog -unversioned -BUILDMACHINE -stdout -CrashForUAT -unattended -NoLogTimes -UTF8Output -iterate -iterateshash -abslog=%UNREAL_SOURCECODE_DIR%\\Engine\\Programs\\AutomationTool\\Saved\\Logs\\Log.txt 
+                %UNREAL_SOURCE_ENGINE_DIR%\\Binaries\\Win64\\UE4Editor-Cmd.exe %UNREAL_GAME_PROJECT% -run=Cook  -TargetPlatform=WindowsNoEditor+WindowsServer+LinuxServer -fileopenlog -unversioned -BUILDMACHINE -stdout -CrashForUAT -unattended -NoLogTimes -UTF8Output -iterate -iterateshash -abslog=%UNREAL_SOURCE_ENGINE_DIR%\\Programs\\AutomationTool\\Saved\\Logs\\Log.txt 
 
                 python D:\\_BuildTools\\Python\\DiscordNotifyCooksummary.py || exit 1
                 '''
@@ -133,8 +133,8 @@ def call(body) {
                     p4 edit -c default %P4_ROOT%\\GameModel\\Model.Server\\ServerData\\MatchModeData.json
                     p4 edit -c default %P4_ROOT%\\GameModel\\Model.Server\\ServerData\\DataT_Zone.json
 
-                    call %UNREAL_SOURCECODE_DIR%\\Engine\\Binaries\\Win64\\UE4Editor-Cmd.exe %UNREAL_GAME_PROJECT% -run=ExportDataTable -datapath=/Game/Main/Gameplay/GameData/DataT_MatchMode -outpath=%P4_ROOT%/GameModel/Model.Server/ServerData/MatchModeData.json
-                    call %UNREAL_SOURCECODE_DIR%\\Engine\\Binaries\\Win64\\UE4Editor-Cmd.exe %UNREAL_GAME_PROJECT% -run=ExportDataTable -datapath=/Game/Main/Gameplay/GameData/DataT_Zone -outpath=%P4_ROOT%/GameModel/Model.Server/ServerData/DataT_Zone.json
+                    call %UNREAL_SOURCE_ENGINE_DIR%\\Binaries\\Win64\\UE4Editor-Cmd.exe %UNREAL_GAME_PROJECT% -run=ExportDataTable -datapath=/Game/Main/Gameplay/GameData/DataT_MatchMode -outpath=%P4_ROOT%/GameModel/Model.Server/ServerData/MatchModeData.json
+                    call %UNREAL_SOURCE_ENGINE_DIR%\\Binaries\\Win64\\UE4Editor-Cmd.exe %UNREAL_GAME_PROJECT% -run=ExportDataTable -datapath=/Game/Main/Gameplay/GameData/DataT_Zone -outpath=%P4_ROOT%/GameModel/Model.Server/ServerData/DataT_Zone.json
 
                     p4 revert -a -c default
                     p4 submit -d "[AutoBuild] update MatchModeData.json DataT_Zone.json" -f revertunchanged || exit 0
@@ -148,7 +148,7 @@ def call(body) {
         }
 
         stage('WindowsClient Dev') {
-            bat '"%UNREAL_SOURCECODE_DIR%\\Engine\\Build\\BatchFiles\\RunUAT.bat" BuildCookRun -project=%UNREAL_GAME_PROJECT% -noP4 -platform=Win64 -clientconfig=Development -cook -pak -build -stage -archive -archivedirectory=%UNREAL_BUILD_DIR% -utf8output -compressed -prereqs -iterate -AdditionalCookerOptions=-BUILDMACHINE || python D:\\_BuildTools\\Python\\ReportFailure.py WindowsClientDev'
+            bat '"%UNREAL_SOURCE_ENGINE_DIR%\\Build\\BatchFiles\\RunUAT.bat" BuildCookRun -project=%UNREAL_GAME_PROJECT% -noP4 -platform=Win64 -clientconfig=Development -cook -pak -build -stage -archive -archivedirectory=%UNREAL_BUILD_DIR% -utf8output -compressed -prereqs -iterate -AdditionalCookerOptions=-BUILDMACHINE || python D:\\_BuildTools\\Python\\ReportFailure.py WindowsClientDev'
             bat '''
                 rename %UNREAL_BUILD_DIR%\\WindowsNoEditor\\ReDream.exe ReDream.bak
                 xcopy D:\\_BuildTools\\TrueSkyLib %UNREAL_BUILD_DIR%\\WindowsNoEditor\\Engine /s /e /y
@@ -182,7 +182,7 @@ def call(body) {
         }
 
         stage('LinuxServer Dev') {
-            bat '"%UNREAL_SOURCECODE_DIR%\\Engine\\Build\\BatchFiles\\RunUAT.bat" BuildCookRun -project=%UNREAL_GAME_PROJECT% -noP4 -platform=Linux -serverconfig=Development -cook -pak -build -stage -server -serverplatform=Linux -noclient -archive -archivedirectory=%UNREAL_BUILD_DIR% -utf8output -compressed -prereqs -iterate -AdditionalCookerOptions=-BUILDMACHINE || python D:\\_BuildTools\\Python\\ReportFailure.py LinuxServerDev LinuxServerDev'
+            bat '"%UNREAL_SOURCE_ENGINE_DIR%\\Build\\BatchFiles\\RunUAT.bat" BuildCookRun -project=%UNREAL_GAME_PROJECT% -noP4 -platform=Linux -serverconfig=Development -cook -pak -build -stage -server -serverplatform=Linux -noclient -archive -archivedirectory=%UNREAL_BUILD_DIR% -utf8output -compressed -prereqs -iterate -AdditionalCookerOptions=-BUILDMACHINE || python D:\\_BuildTools\\Python\\ReportFailure.py LinuxServerDev LinuxServerDev'
             bat '''
                 xcopy D:\\_BuildTools\\EAC\\_EACLinuxServer %UNREAL_BUILD_DIR%\\LinuxServer /s /e /y
                 xcopy %P4RootDir%\\Game\\ReDream\\Binaries\\DevelopmentConfig\\RDSetting.ini %UNREAL_BUILD_DIR%\\LinuxServer\\ReDream\\Saved\\Config\\LinuxServer\\ /s /e /y
@@ -224,7 +224,7 @@ def call(body) {
         }
 
         stage('WindowsServer Dev') {
-            bat '"%UNREAL_SOURCECODE_DIR%\\Engine\\Build\\BatchFiles\\RunUAT.bat" BuildCookRun -project=%UNREAL_GAME_PROJECT% -noP4 -platform=Win64 -serverconfig=Development -cook -pak -build -stage -server -serverplatform=Win64 -noclient -archive -archivedirectory=%UNREAL_BUILD_DIR% -utf8output -compressed -prereqs -DUMPALLWARNINGS -iterate -AdditionalCookerOptions=-BUILDMACHINE || python D:\\_BuildTools\\Python\\ReportFailure.py WindowsServerDev'
+            bat '"%UNREAL_SOURCE_ENGINE_DIR%\\Build\\BatchFiles\\RunUAT.bat" BuildCookRun -project=%UNREAL_GAME_PROJECT% -noP4 -platform=Win64 -serverconfig=Development -cook -pak -build -stage -server -serverplatform=Win64 -noclient -archive -archivedirectory=%UNREAL_BUILD_DIR% -utf8output -compressed -prereqs -DUMPALLWARNINGS -iterate -AdditionalCookerOptions=-BUILDMACHINE || python D:\\_BuildTools\\Python\\ReportFailure.py WindowsServerDev'
             bat '''
                 xcopy D:\\_BuildTools\\EAC\\_EACWinServer %UNREAL_BUILD_DIR%\\WindowsServer /s /e /y
                 xcopy %P4RootDir%\\Game\\ReDream\\Binaries\\WindowsDevelopmentConfig\\RDSetting.ini %UNREAL_BUILD_DIR%\\WindowsServer\\ReDream\\Saved\\Config\\WindowsServer\\ /s /e /y
@@ -247,7 +247,7 @@ def call(body) {
         }
 
         stage('WindowsClient Shipping') {
-            bat '"%UNREAL_SOURCECODE_DIR%\\Engine\\Build\\BatchFiles\\RunUAT.bat" BuildCookRun -project=%UNREAL_GAME_PROJECT% -noP4 -platform=Win64 -clientconfig=Shipping -cook -pak -build -stage -archive -archivedirectory=%UNREAL_BUILD_DIR% -utf8output -compressed -prereqs -iterate -AdditionalCookerOptions=-BUILDMACHINE || python D:\\_BuildTools\\Python\\ReportFailure.py WindowsClientShipping WindowsClientShipping'
+            bat '"%UNREAL_SOURCE_ENGINE_DIR%\\Build\\BatchFiles\\RunUAT.bat" BuildCookRun -project=%UNREAL_GAME_PROJECT% -noP4 -platform=Win64 -clientconfig=Shipping -cook -pak -build -stage -archive -archivedirectory=%UNREAL_BUILD_DIR% -utf8output -compressed -prereqs -iterate -AdditionalCookerOptions=-BUILDMACHINE || python D:\\_BuildTools\\Python\\ReportFailure.py WindowsClientShipping WindowsClientShipping'
 
             bat '''
                 xcopy D:\\_BuildTools\\TrueSkyLib %UNREAL_BUILD_DIR%\\WindowsNoEditor\\Engine /s /e /y
@@ -284,7 +284,7 @@ def call(body) {
         }
 
         stage('LinuxServer Shipping') {
-            bat '"%UNREAL_SOURCECODE_DIR%\\Engine\\Build\\BatchFiles\\RunUAT.bat" BuildCookRun -project=%UNREAL_GAME_PROJECT% -noP4 -platform=Linux -serverconfig=Shipping -cook -pak -build -stage -server -serverplatform=Linux -noclient -archive -archivedirectory=%UNREAL_BUILD_DIR% -utf8output -compressed -prereqs -iterate -AdditionalCookerOptions=-BUILDMACHINE || python D:\\_BuildTools\\Python\\ReportFailure.py LinuxServerShipping LinuxServerShipping'
+            bat '"%UNREAL_SOURCE_ENGINE_DIR%\\Build\\BatchFiles\\RunUAT.bat" BuildCookRun -project=%UNREAL_GAME_PROJECT% -noP4 -platform=Linux -serverconfig=Shipping -cook -pak -build -stage -server -serverplatform=Linux -noclient -archive -archivedirectory=%UNREAL_BUILD_DIR% -utf8output -compressed -prereqs -iterate -AdditionalCookerOptions=-BUILDMACHINE || python D:\\_BuildTools\\Python\\ReportFailure.py LinuxServerShipping LinuxServerShipping'
 
             bat '''
                 xcopy D:\\_BuildTools\\EAC\\_EACLinuxServer %UNREAL_BUILD_DIR%\\LinuxServer /s /e /y
