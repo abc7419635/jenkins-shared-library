@@ -198,10 +198,10 @@ def call(body) {
 
                 bat 'rename %UNREAL_BUILD_WORKDIR% %WindowsClientDevName%'
 
-                build job: 'RemoteBuildCompress', parameters: [string(name: 'DATAPATH', value: '%UNREAL_BUILD_DIR%'+env.WindowsClientDevName),
+                build job: 'RemoteBuildCompress', parameters: [string(name: 'DATAPATH', value: evn.UNREAL_BUILD_DIR+env.WindowsClientDevName),
                 string(name: 'ZIPNAME', value: env.WindowsClientDevName)], wait: false
 
-                build job: 'SteamDeploy', parameters: [string(name: 'GAME_PATH', value: '%UNREAL_BUILD_DIR%'+env.WindowsClientDevName),
+                build job: 'SteamDeploy', parameters: [string(name: 'GAME_PATH', value: env.UNREAL_BUILD_DIR+env.WindowsClientDevName),
                 string(name: 'ALIVE_BRANCH', value: 'development')], wait: false
 
                 bat 'python D:\\_BuildTools\\Python\\ReportSuccess.py WindowsClientDev'
@@ -242,7 +242,7 @@ def call(body) {
                 bat 'rename %UNREAL_BUILD_WORKDIR% %LinuxServerDevName%'
 
                 build job: 'RemoteBuildCompress', parameters: [
-                string(name: 'DATAPATH', value: '%UNREAL_BUILD_DIR%'+env.LinuxServerDevName),
+                string(name: 'DATAPATH', value: evn.UNREAL_BUILD_DIR+env.LinuxServerDevName),
                 string(name: 'ZIPNAME', value: env.LinuxServerDevName+'.tar')], wait: false
 
                 /*build job: 'RD_LaunchServiceScript', parameters: [
@@ -281,7 +281,7 @@ def call(body) {
                 }
                 bat 'rename %UNREAL_BUILD_WORKDIR% %WindowsServerDevName%'
 
-                build job: 'RemoteBuildCompress', parameters: [string(name: 'DATAPATH', value: '%UNREAL_BUILD_DIR%'+env.WindowsServerDevName),
+                build job: 'RemoteBuildCompress', parameters: [string(name: 'DATAPATH', value: evn.UNREAL_BUILD_DIR+env.WindowsServerDevName),
                 string(name: 'ZIPNAME', value: env.WindowsServerDevName)], wait: false
 
                 bat 'python D:\\_BuildTools\\Python\\ReportSuccess.py WindowsServerDev'
@@ -320,10 +320,10 @@ def call(body) {
                 bat 'rename %UNREAL_BUILD_WORKDIR% %WindowsClientShippingName%'
 
                 build job: 'RemoteBuildCompress', parameters: [
-                string(name: 'DATAPATH', value: '%UNREAL_BUILD_DIR%'+env.WindowsClientShippingName),
+                string(name: 'DATAPATH', value: evn.UNREAL_BUILD_DIR+env.WindowsClientShippingName),
                 string(name: 'ZIPNAME', value: env.WindowsClientShippingName)], wait: false
 
-                build job: 'SteamDeploy', parameters: [string(name: 'GAME_PATH', value: '%UNREAL_BUILD_DIR%'+env.WindowsClientDevName),
+                build job: 'SteamDeploy', parameters: [string(name: 'GAME_PATH', value: evn.UNREAL_BUILD_DIR+env.WindowsClientDevName),
                 string(name: 'ALIVE_BRANCH', value: 'shipping')], wait: false
 
                 bat 'python D:\\_BuildTools\\Python\\ReportSuccess.py WindowsClientShipping'
@@ -351,7 +351,7 @@ def call(body) {
                 bat 'rename %UNREAL_BUILD_WORKDIR% %LinuxServerShippingName%'
 
                 build job: 'RemoteBuildCompress', parameters: [
-                string(name: 'DATAPATH', value: '%UNREAL_BUILD_DIR%'+env.LinuxServerShippingName),
+                string(name: 'DATAPATH', value: evn.UNREAL_BUILD_DIR+env.LinuxServerShippingName),
                 string(name: 'ZIPNAME', value: env.LinuxServerShippingName+'.tar')], wait: false
 
                 bat 'python D:\\_BuildTools\\Python\\ReportSuccess.py LinuxServerShipping'
