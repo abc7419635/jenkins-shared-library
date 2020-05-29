@@ -12,8 +12,10 @@ pipeline {
         string(name: 'P4RootDir', defaultValue: 'F:\\RD_DailyMain', description: '')
         string(name: 'BOTO_CONFIG', defaultValue: 'D:\\JenkinsRemoteRoot\\.boto', description: '')
 
+        string(name: 'UNREAL_PROJECT_NAME', defaultValue: 'ReDream', description: '')
+
         string(name: 'UNREAL_BUILD_DIR', defaultValue: 'E:\\ReDreamPackage', description: '')
-        string(name: 'UNREAL_GAME_DIR', defaultValue: 'F:\\RD_DailyMain\\Game\\ReDream\\ReDream.uproject', description: '')
+        //string(name: 'UNREAL_GAME_DIR', defaultValue: 'F:\\RD_DailyMain\\Game\\ReDream\\ReDream.uproject', description: '')
         string(name: 'UNREAL_SOURCECODE_DIR', defaultValue: 'F:\\RD_DailyMain\\Game', description: '')
 
         booleanParam(name: 'CLEARCOOK', defaultValue: false, description: '')
@@ -41,7 +43,6 @@ pipeline {
     //    }
     //}
 }
-
 */
 
 import java.text.SimpleDateFormat
@@ -52,17 +53,11 @@ def buildfailure() {
 
 def call(body) {
     node('RemoteBuildPC') {
-        /*stage('Test') {
-            echo env.P4_CHANGELIST
-            echo env.P4_CLIENT
-            echo env.P4_PORT
-            echo env.P4_ROOT
-            echo env.P4_USER
-            echo env.P4_TICKET
-            echo env.P4_REVIEW
-            echo env.P4_REVIEW_TYPE
+        stage('Test') {
+            env.UNREAL_GAME_DIR = env.P4RootDir + '\\Game\\' + env.UNREAL_PROJECT_NAME + '\\' + env.UNREAL_PROJECT_NAME + '.uproject'
+            echo env.UNREAL_GAME_DIR
         }
-        return;*/
+        return;
 
         stage('Sync Perforce') {
             if(env.SkipP4Update=='false') {
