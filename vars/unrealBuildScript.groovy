@@ -16,6 +16,12 @@ pipeline {
         string(name: 'UNREAL_BUILD_DIR', defaultValue: 'E:\\ReDreamPackage', description: '')
 
         booleanParam(name: 'CLEARCOOK', defaultValue: false, description: '')
+
+        booleanParam(name: 'Build_WIN_CLIENT_DEV', defaultValue: true, description: '')
+        booleanParam(name: 'Build_LINUX_SERVER_DEV', defaultValue: true, description: '')
+        booleanParam(name: 'Build_WIN_SERVER_DEV', defaultValue: true, description: '')
+        booleanParam(name: 'Build_WIN_CLIENT_SHIPPING', defaultValue: true, description: '')
+        booleanParam(name: 'Build_LINUX_SERVER_SHIPPING', defaultValue: true, description: '')
     }
     
     stages {
@@ -106,11 +112,14 @@ def call(body) {
         }
 
         stage('Build Editor') {
-            bat '"%UNREAL_SOURCE_ENGINE_DIR%\\Build\\BatchFiles\\Build.bat" "ReDreamEditor" Win64 Development -WarningsAsErrors %UNREAL_GAME_PROJECT% || python D:\\_BuildTools\\Python\\ReportFailure.py BuildEditor'
-            bat 'python D:\\_BuildTools\\Python\\ReportSuccess.py BuildEditor'
+            if(env.SkipP4Update=='false') {
+                bat '"%UNREAL_SOURCE_ENGINE_DIR%\\Build\\BatchFiles\\Build.bat" "ReDreamEditor" Win64 Development -WarningsAsErrors %UNREAL_GAME_PROJECT% || python D:\\_BuildTools\\Python\\ReportFailure.py BuildEditor'
+                bat 'python D:\\_BuildTools\\Python\\ReportSuccess.py BuildEditor'
+            }
         }
 
         stage('Cook Content') {
+            if(env.SkipP4Update=='false') {
             bat '''
                 if "%CLEARCOOK%"=="true" (rmdir /s/q %P4RootDir%\\Game\\ReDream\\Saved\\Cooked)
 
@@ -118,6 +127,7 @@ def call(body) {
 
                 python D:\\_BuildTools\\Python\\DiscordNotifyCooksummary.py || exit 1
                 '''
+            }
         }
 
         stage('ExportDataTable') {
@@ -137,8 +147,15 @@ def call(body) {
                     p4 revert -a -c default
                     p4 submit -d "[AutoBuild] update MatchModeData.json DataT_Zone.json" -f revertunchanged || exit 0
                     '''
-                
-                build job: 'RD_GameModelServiceScript', parameters: [booleanParam(name: 'DeployToStaging', value: true)], wait: false
+
+                build job: 'RD_GameModelServiceScript', parameters: [
+                string(name: 'P4Credential', value: env.P4Credential),
+                string(name: 'P4WorkspaceName', value: env.P4WorkspaceName),
+                string(name: 'P4Stream', value: env.P4Stream),
+                string(name: 'P4RootDir', value: env.P4RootDir),
+                string(name: 'BOTO_CONFIG', value: env.BOTO_CONFIG),
+                booleanParam(name: 'DeployToStaging', value: true)], wait: false
+
             }
             else {
                 echo 'Skip Sync Perforce'
@@ -146,164 +163,188 @@ def call(body) {
         }
 
         stage('WindowsClient Dev') {
-            bat '"%UNREAL_SOURCE_ENGINE_DIR%\\Build\\BatchFiles\\RunUAT.bat" BuildCookRun -project=%UNREAL_GAME_PROJECT% -noP4 -platform=Win64 -clientconfig=Development -cook -pak -build -stage -archive -archivedirectory=%UNREAL_BUILD_DIR% -utf8output -compressed -prereqs -iterate -AdditionalCookerOptions=-BUILDMACHINE || python D:\\_BuildTools\\Python\\ReportFailure.py WindowsClientDev'
-            bat '''
-                rename %UNREAL_BUILD_DIR%\\WindowsNoEditor\\ReDream.exe ReDream.bak
-                xcopy D:\\_BuildTools\\TrueSkyLib %UNREAL_BUILD_DIR%\\WindowsNoEditor\\Engine /s /e /y
-                xcopy D:\\_BuildTools\\EAC\\_EACClient %UNREAL_BUILD_DIR%\\WindowsNoEditor /s /e /y
-                xcopy %P4RootDir%\\Game\\ReDream\\Binaries\\DevelopmentConfig %UNREAL_BUILD_DIR%\\WindowsNoEditor\\ReDream\\Saved\\Config\\WindowsNoEditor\\ /s /e /y
-                copy D:\\_BuildTools\\SteamSDK\\installscript.vdf %UNREAL_BUILD_DIR%\\WindowsNoEditor\\ /y
-                '''
+            if(env.Build_WIN_CLIENT_DEV=='true')
+            {
+                bat '"%UNREAL_SOURCE_ENGINE_DIR%\\Build\\BatchFiles\\RunUAT.bat" BuildCookRun -project=%UNREAL_GAME_PROJECT% -noP4 -platform=Win64 -clientconfig=Development -cook -pak -build -stage -archive -archivedirectory=%UNREAL_BUILD_DIR% -utf8output -compressed -prereqs -iterate -AdditionalCookerOptions=-BUILDMACHINE || python D:\\_BuildTools\\Python\\ReportFailure.py WindowsClientDev'
+                bat '''
+                    rename %UNREAL_BUILD_DIR%\\WindowsNoEditor\\ReDream.exe ReDream.bak
+                    xcopy D:\\_BuildTools\\TrueSkyLib %UNREAL_BUILD_DIR%\\WindowsNoEditor\\Engine /s /e /y
+                    xcopy D:\\_BuildTools\\EAC\\_EACClient %UNREAL_BUILD_DIR%\\WindowsNoEditor /s /e /y
+                    xcopy %P4RootDir%\\Game\\ReDream\\Binaries\\DevelopmentConfig %UNREAL_BUILD_DIR%\\WindowsNoEditor\\ReDream\\Saved\\Config\\WindowsNoEditor\\ /s /e /y
+                    copy D:\\_BuildTools\\SteamSDK\\installscript.vdf %UNREAL_BUILD_DIR%\\WindowsNoEditor\\ /y
+                    '''
 
-            bat '''
-                D:
-                cd D:\\_BuildTools\\EAC\\AntiCheatSDK\\Client\\HashTool
-                eac_hashtool.exe -working_dir %UNREAL_BUILD_DIR%\\WindowsNoEditor\\
-                '''
+                bat '''
+                    D:
+                    cd D:\\_BuildTools\\EAC\\AntiCheatSDK\\Client\\HashTool
+                    eac_hashtool.exe -working_dir %UNREAL_BUILD_DIR%\\WindowsNoEditor\\
+                    '''
 
-            dir('D:\\_BuildTools\\temp') {
-                def readfilevar = readFile('BuildVersion.txt').replaceAll("\\s","")
-                def date = new Date(Calendar.getInstance().getTimeInMillis() + (8 * 60 * 60 * 1000))
-                def sdf = new SimpleDateFormat("yyyyMMdd_HHmmss")
-                def timestring = sdf.format(date)
-                env.WindowsClientDevName = 'WindowsClientDev_' + env.P4Stream.substring(13) + '_' + readfilevar + '_' + timestring
-                echo env.WindowsClientDevName
+                dir('D:\\_BuildTools\\temp') {
+                    def readfilevar = readFile('BuildVersion.txt').replaceAll("\\s","")
+                    def date = new Date(Calendar.getInstance().getTimeInMillis() + (8 * 60 * 60 * 1000))
+                    def sdf = new SimpleDateFormat("yyyyMMdd_HHmmss")
+                    def timestring = sdf.format(date)
+                    env.WindowsClientDevName = 'WindowsClientDev_' + env.P4Stream.substring(13) + '_' + readfilevar + '_' + timestring
+                    echo env.WindowsClientDevName
+                }
+
+                bat 'rename %UNREAL_BUILD_DIR% %WindowsClientDevName%'
+
+                build job: 'RemoteBuildCompress', parameters: [string(name: 'DATAPATH', value: 'E:\\'+env.WindowsClientDevName),
+                string(name: 'ZIPNAME', value: env.WindowsClientDevName)], wait: false
+
+                build job: 'SteamDeploy', parameters: [string(name: 'GAME_PATH', value: 'E:\\'+env.WindowsClientDevName),
+                string(name: 'ALIVE_BRANCH', value: 'development')], wait: false
+
+                bat 'python D:\\_BuildTools\\Python\\ReportSuccess.py WindowsClientDev'
             }
-
-            bat 'rename %UNREAL_BUILD_DIR% %WindowsClientDevName%'
-
-            build job: 'RemoteBuildCompress', parameters: [string(name: 'DATAPATH', value: 'E:\\'+env.WindowsClientDevName),
-            string(name: 'ZIPNAME', value: env.WindowsClientDevName),
-            string(name: 'SteamBranch', value: 'development')], wait: false
-
-            bat 'python D:\\_BuildTools\\Python\\ReportSuccess.py WindowsClientDev'
         }
 
         stage('LinuxServer Dev') {
-            bat '"%UNREAL_SOURCE_ENGINE_DIR%\\Build\\BatchFiles\\RunUAT.bat" BuildCookRun -project=%UNREAL_GAME_PROJECT% -noP4 -platform=Linux -serverconfig=Development -cook -pak -build -stage -server -serverplatform=Linux -noclient -archive -archivedirectory=%UNREAL_BUILD_DIR% -utf8output -compressed -prereqs -iterate -AdditionalCookerOptions=-BUILDMACHINE || python D:\\_BuildTools\\Python\\ReportFailure.py LinuxServerDev LinuxServerDev'
-            bat '''
-                xcopy D:\\_BuildTools\\EAC\\_EACLinuxServer %UNREAL_BUILD_DIR%\\LinuxServer /s /e /y
-                xcopy %P4RootDir%\\Game\\ReDream\\Binaries\\DevelopmentConfig\\RDSetting.ini %UNREAL_BUILD_DIR%\\LinuxServer\\ReDream\\Saved\\Config\\LinuxServer\\ /s /e /y
-                '''
-            dir('D:\\_BuildTools\\temp') {
-                env.BuildVer = readFile('BuildVersion.txt').replaceAll("\\s","")
+            if(env.Build_LINUX_SERVER_DEV=='true')
+            {
+                bat '"%UNREAL_SOURCE_ENGINE_DIR%\\Build\\BatchFiles\\RunUAT.bat" BuildCookRun -project=%UNREAL_GAME_PROJECT% -noP4 -platform=Linux -serverconfig=Development -cook -pak -build -stage -server -serverplatform=Linux -noclient -archive -archivedirectory=%UNREAL_BUILD_DIR% -utf8output -compressed -prereqs -iterate -AdditionalCookerOptions=-BUILDMACHINE || python D:\\_BuildTools\\Python\\ReportFailure.py LinuxServerDev LinuxServerDev'
+                bat '''
+                    xcopy D:\\_BuildTools\\EAC\\_EACLinuxServer %UNREAL_BUILD_DIR%\\LinuxServer /s /e /y
+                    xcopy %P4RootDir%\\Game\\ReDream\\Binaries\\DevelopmentConfig\\RDSetting.ini %UNREAL_BUILD_DIR%\\LinuxServer\\ReDream\\Saved\\Config\\LinuxServer\\ /s /e /y
+                    '''
+                dir('D:\\_BuildTools\\temp') {
+                    env.BuildVer = readFile('BuildVersion.txt').replaceAll("\\s","")
+                }
+
+                bat '''
+                    echo %BuildVer% > %UNREAL_BUILD_DIR%\\LinuxServer\\version.txt
+                    rmdir /Q/S \\\\10.2.11.61\\D\\Docker\\image\\launchserver\\LinuxServer
+                    xcopy %UNREAL_BUILD_DIR% \\\\10.2.11.61\\D\\Docker\\image\\launchserver\\ /s /e /y
+
+                    rmdir /Q/S \\\\10.2.11.122\\D\\_LinuxServerOld\\LinuxServer
+                    move \\\\10.2.11.122\\D\\_Launch\\LinuxServer \\\\10.2.11.122\\D\\_LinuxServerOld
+                    xcopy %UNREAL_BUILD_DIR% \\\\10.2.11.122\\D\\_Launch\\ /s /e /y
+                    copy /Y \\\\10.2.11.122\\D\\_Launch\\RDSetting.ini \\\\10.2.11.122\\D\\_Launch\\LinuxServer\\ReDream\\Saved\\Config\\LinuxServer\\
+                    '''
+
+                dir('D:\\_BuildTools\\temp') {
+                    def readfilevar = readFile('BuildVersion.txt').replaceAll("\\s","")
+                    def date = new Date(Calendar.getInstance().getTimeInMillis() + (8 * 60 * 60 * 1000))
+                    def sdf = new SimpleDateFormat("yyyyMMdd_HHmmss")
+                    def timestring = sdf.format(date)
+                    env.LinuxServerDevName = 'LinuxServerDev_' + env.P4Stream.substring(13) + '_' + readfilevar + '_' + timestring
+                    echo env.LinuxServerDevName
+                }
+                bat 'rename %UNREAL_BUILD_DIR% %LinuxServerDevName%'
+
+                build job: 'RemoteBuildCompress', parameters: [
+                string(name: 'DATAPATH', value: 'E:\\'+env.LinuxServerDevName),
+                string(name: 'ZIPNAME', value: env.LinuxServerDevName+'.tar')], wait: false
+
+                build job: 'RD_LaunchServiceScript', parameters: [
+                string(name: 'P4Credential', value: env.P4Credential),
+                string(name: 'P4WorkspaceName', value: env.P4WorkspaceName),
+                string(name: 'P4Stream', value: env.P4Stream),
+                string(name: 'P4RootDir', value: env.P4RootDir),
+                string(name: 'BOTO_CONFIG', value: env.BOTO_CONFIG),
+                booleanParam(name: 'DeployToStaging', value: true),
+                booleanParam(name: 'DeployToLocal', value: true)], wait: false
+
+                bat 'python D:\\_BuildTools\\Python\\ReportSuccess.py LinuxServerDev'
             }
-
-            bat '''
-                echo %BuildVer% > %UNREAL_BUILD_DIR%\\LinuxServer\\version.txt
-                rmdir /Q/S \\\\10.2.11.61\\D\\Docker\\image\\launchserver\\LinuxServer
-                xcopy %UNREAL_BUILD_DIR% \\\\10.2.11.61\\D\\Docker\\image\\launchserver\\ /s /e /y
-
-                rmdir /Q/S \\\\10.2.11.122\\D\\_LinuxServerOld\\LinuxServer
-                move \\\\10.2.11.122\\D\\_Launch\\LinuxServer \\\\10.2.11.122\\D\\_LinuxServerOld
-                xcopy %UNREAL_BUILD_DIR% \\\\10.2.11.122\\D\\_Launch\\ /s /e /y
-                copy /Y \\\\10.2.11.122\\D\\_Launch\\RDSetting.ini \\\\10.2.11.122\\D\\_Launch\\LinuxServer\\ReDream\\Saved\\Config\\LinuxServer\\
-                '''
-
-            dir('D:\\_BuildTools\\temp') {
-                def readfilevar = readFile('BuildVersion.txt').replaceAll("\\s","")
-                def date = new Date(Calendar.getInstance().getTimeInMillis() + (8 * 60 * 60 * 1000))
-                def sdf = new SimpleDateFormat("yyyyMMdd_HHmmss")
-                def timestring = sdf.format(date)
-                env.LinuxServerDevName = 'LinuxServerDev_' + env.P4Stream.substring(13) + '_' + readfilevar + '_' + timestring
-                echo env.LinuxServerDevName
-            }
-            bat 'rename %UNREAL_BUILD_DIR% %LinuxServerDevName%'
-
-            build job: 'RemoteBuildCompress', parameters: [
-            string(name: 'DATAPATH', value: 'E:\\'+env.LinuxServerDevName),
-            string(name: 'ZIPNAME', value: env.LinuxServerDevName+'.tar')], wait: false
-
-            build job: 'RD_LaunchServiceScript', parameters: [
-            booleanParam(name: 'DeployToStaging', value: true),
-            booleanParam(name: 'DeployToLocal', value: true)], wait: false
-
-            bat 'python D:\\_BuildTools\\Python\\ReportSuccess.py LinuxServerDev'
         }
 
         stage('WindowsServer Dev') {
-            bat '"%UNREAL_SOURCE_ENGINE_DIR%\\Build\\BatchFiles\\RunUAT.bat" BuildCookRun -project=%UNREAL_GAME_PROJECT% -noP4 -platform=Win64 -serverconfig=Development -cook -pak -build -stage -server -serverplatform=Win64 -noclient -archive -archivedirectory=%UNREAL_BUILD_DIR% -utf8output -compressed -prereqs -DUMPALLWARNINGS -iterate -AdditionalCookerOptions=-BUILDMACHINE || python D:\\_BuildTools\\Python\\ReportFailure.py WindowsServerDev'
-            bat '''
-                xcopy D:\\_BuildTools\\EAC\\_EACWinServer %UNREAL_BUILD_DIR%\\WindowsServer /s /e /y
-                xcopy %P4RootDir%\\Game\\ReDream\\Binaries\\WindowsDevelopmentConfig\\RDSetting.ini %UNREAL_BUILD_DIR%\\WindowsServer\\ReDream\\Saved\\Config\\WindowsServer\\ /s /e /y
-                '''
-            bat 'echo ReDream\\Binaries\\Win64\\ReDreamServer.exe /Game/Main/Maps/Scn01/MAP_Scn01_EA_BC -log networkprofiler=true > %UNREAL_BUILD_DIR%\\WindowsServer\\ReDreamServer.bat'
-            dir('D:\\_BuildTools\\temp') {
-                def readfilevar = readFile('BuildVersion.txt').replaceAll("\\s","")
-                def date = new Date(Calendar.getInstance().getTimeInMillis() + (8 * 60 * 60 * 1000))
-                def sdf = new SimpleDateFormat("yyyyMMdd_HHmmss")
-                def timestring = sdf.format(date)
-                env.WindowsServerDevName = 'WindowsServerDev_' + env.P4Stream.substring(13) + '_' + readfilevar + '_' + timestring
-                echo env.WindowsServerDevName
+            if(env.Build_WIN_SERVER_DEV=='true')
+            {
+                bat '"%UNREAL_SOURCE_ENGINE_DIR%\\Build\\BatchFiles\\RunUAT.bat" BuildCookRun -project=%UNREAL_GAME_PROJECT% -noP4 -platform=Win64 -serverconfig=Development -cook -pak -build -stage -server -serverplatform=Win64 -noclient -archive -archivedirectory=%UNREAL_BUILD_DIR% -utf8output -compressed -prereqs -DUMPALLWARNINGS -iterate -AdditionalCookerOptions=-BUILDMACHINE || python D:\\_BuildTools\\Python\\ReportFailure.py WindowsServerDev'
+                bat '''
+                    xcopy D:\\_BuildTools\\EAC\\_EACWinServer %UNREAL_BUILD_DIR%\\WindowsServer /s /e /y
+                    xcopy %P4RootDir%\\Game\\ReDream\\Binaries\\WindowsDevelopmentConfig\\RDSetting.ini %UNREAL_BUILD_DIR%\\WindowsServer\\ReDream\\Saved\\Config\\WindowsServer\\ /s /e /y
+                    '''
+                bat 'echo ReDream\\Binaries\\Win64\\ReDreamServer.exe /Game/Main/Maps/Scn01/MAP_Scn01_EA_BC -log networkprofiler=true > %UNREAL_BUILD_DIR%\\WindowsServer\\ReDreamServer.bat'
+                dir('D:\\_BuildTools\\temp') {
+                    def readfilevar = readFile('BuildVersion.txt').replaceAll("\\s","")
+                    def date = new Date(Calendar.getInstance().getTimeInMillis() + (8 * 60 * 60 * 1000))
+                    def sdf = new SimpleDateFormat("yyyyMMdd_HHmmss")
+                    def timestring = sdf.format(date)
+                    env.WindowsServerDevName = 'WindowsServerDev_' + env.P4Stream.substring(13) + '_' + readfilevar + '_' + timestring
+                    echo env.WindowsServerDevName
+                }
+                bat 'rename %UNREAL_BUILD_DIR% %WindowsServerDevName%'
+
+                build job: 'RemoteBuildCompress', parameters: [string(name: 'DATAPATH', value: 'E:\\'+env.WindowsServerDevName),
+                string(name: 'ZIPNAME', value: env.WindowsServerDevName)], wait: false
+
+                bat 'python D:\\_BuildTools\\Python\\ReportSuccess.py WindowsServerDev'
             }
-            bat 'rename %UNREAL_BUILD_DIR% %WindowsServerDevName%'
-
-            build job: 'RemoteBuildCompress', parameters: [string(name: 'DATAPATH', value: 'E:\\'+env.WindowsServerDevName),
-            string(name: 'ZIPNAME', value: env.WindowsServerDevName)], wait: false
-
-            bat 'python D:\\_BuildTools\\Python\\ReportSuccess.py WindowsServerDev'
         }
 
         stage('WindowsClient Shipping') {
-            bat '"%UNREAL_SOURCE_ENGINE_DIR%\\Build\\BatchFiles\\RunUAT.bat" BuildCookRun -project=%UNREAL_GAME_PROJECT% -noP4 -platform=Win64 -clientconfig=Shipping -cook -pak -build -stage -archive -archivedirectory=%UNREAL_BUILD_DIR% -utf8output -compressed -prereqs -iterate -AdditionalCookerOptions=-BUILDMACHINE || python D:\\_BuildTools\\Python\\ReportFailure.py WindowsClientShipping WindowsClientShipping'
+            if(env.Build_WIN_CLIENT_SHIPPING=='true')
+            {
+                bat '"%UNREAL_SOURCE_ENGINE_DIR%\\Build\\BatchFiles\\RunUAT.bat" BuildCookRun -project=%UNREAL_GAME_PROJECT% -noP4 -platform=Win64 -clientconfig=Shipping -cook -pak -build -stage -archive -archivedirectory=%UNREAL_BUILD_DIR% -utf8output -compressed -prereqs -iterate -AdditionalCookerOptions=-BUILDMACHINE || python D:\\_BuildTools\\Python\\ReportFailure.py WindowsClientShipping WindowsClientShipping'
 
-            bat '''
-                xcopy D:\\_BuildTools\\TrueSkyLib %UNREAL_BUILD_DIR%\\WindowsNoEditor\\Engine /s /e /y
+                bat '''
+                    xcopy D:\\_BuildTools\\TrueSkyLib %UNREAL_BUILD_DIR%\\WindowsNoEditor\\Engine /s /e /y
+                    
+                    del %UNREAL_BUILD_DIR%\\WindowsNoEditor\\ReDream.exe
+                    rename %UNREAL_BUILD_DIR%\\WindowsNoEditor\\ReDream\\Binaries\\Win64\\ReDream-Win64-Shipping.exe ReDream.exe
+
+                    xcopy D:\\_BuildTools\\EAC\\_EACClient %UNREAL_BUILD_DIR%\\WindowsNoEditor /s /e /y
+                    copy D:\\_BuildTools\\SteamSDK\\installscript.vdf %UNREAL_BUILD_DIR%\\WindowsNoEditor\\ /y
+                    '''
                 
-                del %UNREAL_BUILD_DIR%\\WindowsNoEditor\\ReDream.exe
-                rename %UNREAL_BUILD_DIR%\\WindowsNoEditor\\ReDream\\Binaries\\Win64\\ReDream-Win64-Shipping.exe ReDream.exe
+                bat '''
+                    D:
+                    cd D:\\_BuildTools\\EAC\\AntiCheatSDK\\Client\\HashTool
+                    eac_hashtool.exe -working_dir %UNREAL_BUILD_DIR%\\WindowsNoEditor\\
+                    '''
 
-                xcopy D:\\_BuildTools\\EAC\\_EACClient %UNREAL_BUILD_DIR%\\WindowsNoEditor /s /e /y
-                copy D:\\_BuildTools\\SteamSDK\\installscript.vdf %UNREAL_BUILD_DIR%\\WindowsNoEditor\\ /y
-                '''
-            
-            bat '''
-                D:
-                cd D:\\_BuildTools\\EAC\\AntiCheatSDK\\Client\\HashTool
-                eac_hashtool.exe -working_dir %UNREAL_BUILD_DIR%\\WindowsNoEditor\\
-                '''
+                dir('D:\\_BuildTools\\temp') {
+                    def readfilevar = readFile('BuildVersion.txt').replaceAll("\\s","")
+                    def date = new Date(Calendar.getInstance().getTimeInMillis() + (8 * 60 * 60 * 1000))
+                    def sdf = new SimpleDateFormat("yyyyMMdd_HHmmss")
+                    def timestring = sdf.format(date)
+                    env.WindowsClientShippingName = 'WindowsClientShipping_' + env.P4Stream.substring(13) + '_' + readfilevar + '_' + timestring
+                    echo env.WindowsClientShippingName
+                }
+                bat 'rename %UNREAL_BUILD_DIR% %WindowsClientShippingName%'
 
-            dir('D:\\_BuildTools\\temp') {
-                def readfilevar = readFile('BuildVersion.txt').replaceAll("\\s","")
-                def date = new Date(Calendar.getInstance().getTimeInMillis() + (8 * 60 * 60 * 1000))
-                def sdf = new SimpleDateFormat("yyyyMMdd_HHmmss")
-                def timestring = sdf.format(date)
-                env.WindowsClientShippingName = 'WindowsClientShipping_' + env.P4Stream.substring(13) + '_' + readfilevar + '_' + timestring
-                echo env.WindowsClientShippingName
+                build job: 'RemoteBuildCompress', parameters: [
+                string(name: 'DATAPATH', value: 'E:\\'+env.WindowsClientShippingName),
+                string(name: 'ZIPNAME', value: env.WindowsClientShippingName)], wait: false
+
+                build job: 'SteamDeploy', parameters: [string(name: 'GAME_PATH', value: 'E:\\'+env.WindowsClientDevName),
+                string(name: 'ALIVE_BRANCH', value: 'shipping')], wait: false
+
+                bat 'python D:\\_BuildTools\\Python\\ReportSuccess.py WindowsClientShipping'
             }
-            bat 'rename %UNREAL_BUILD_DIR% %WindowsClientShippingName%'
-
-            build job: 'RemoteBuildCompress', parameters: [
-            string(name: 'DATAPATH', value: 'E:\\'+env.WindowsClientShippingName),
-            string(name: 'ZIPNAME', value: env.WindowsClientShippingName),
-            string(name: 'SteamBranch', value: 'shipping')], wait: false
-
-            bat 'python D:\\_BuildTools\\Python\\ReportSuccess.py WindowsClientShipping'
         }
 
         stage('LinuxServer Shipping') {
-            bat '"%UNREAL_SOURCE_ENGINE_DIR%\\Build\\BatchFiles\\RunUAT.bat" BuildCookRun -project=%UNREAL_GAME_PROJECT% -noP4 -platform=Linux -serverconfig=Shipping -cook -pak -build -stage -server -serverplatform=Linux -noclient -archive -archivedirectory=%UNREAL_BUILD_DIR% -utf8output -compressed -prereqs -iterate -AdditionalCookerOptions=-BUILDMACHINE || python D:\\_BuildTools\\Python\\ReportFailure.py LinuxServerShipping LinuxServerShipping'
+            if(env.Build_LINUX_SERVER_SHIPPING=='true')
+            {
+                bat '"%UNREAL_SOURCE_ENGINE_DIR%\\Build\\BatchFiles\\RunUAT.bat" BuildCookRun -project=%UNREAL_GAME_PROJECT% -noP4 -platform=Linux -serverconfig=Shipping -cook -pak -build -stage -server -serverplatform=Linux -noclient -archive -archivedirectory=%UNREAL_BUILD_DIR% -utf8output -compressed -prereqs -iterate -AdditionalCookerOptions=-BUILDMACHINE || python D:\\_BuildTools\\Python\\ReportFailure.py LinuxServerShipping LinuxServerShipping'
 
-            bat '''
-                xcopy D:\\_BuildTools\\EAC\\_EACLinuxServer %UNREAL_BUILD_DIR%\\LinuxServer /s /e /y
-                xcopy %P4RootDir%\\Game\\ReDream\\Binaries\\DevelopmentConfig\\RDSetting.ini %UNREAL_BUILD_DIR%\\LinuxServer\\ReDream\\Saved\\Config\\LinuxServer\\ /s /e /y
-                '''
+                bat '''
+                    xcopy D:\\_BuildTools\\EAC\\_EACLinuxServer %UNREAL_BUILD_DIR%\\LinuxServer /s /e /y
+                    xcopy %P4RootDir%\\Game\\ReDream\\Binaries\\DevelopmentConfig\\RDSetting.ini %UNREAL_BUILD_DIR%\\LinuxServer\\ReDream\\Saved\\Config\\LinuxServer\\ /s /e /y
+                    '''
 
-            dir('D:\\_BuildTools\\temp') {
-                def readfilevar = readFile('BuildVersion.txt').replaceAll("\\s","")
-                def date = new Date(Calendar.getInstance().getTimeInMillis() + (8 * 60 * 60 * 1000))
-                def sdf = new SimpleDateFormat("yyyyMMdd_HHmmss")
-                def timestring = sdf.format(date)
-                env.LinuxServerShippingName = 'LinuxServerShipping_' + env.P4Stream.substring(13) + '_' + readfilevar + '_' + timestring
-                echo env.LinuxServerShippingName
+                dir('D:\\_BuildTools\\temp') {
+                    def readfilevar = readFile('BuildVersion.txt').replaceAll("\\s","")
+                    def date = new Date(Calendar.getInstance().getTimeInMillis() + (8 * 60 * 60 * 1000))
+                    def sdf = new SimpleDateFormat("yyyyMMdd_HHmmss")
+                    def timestring = sdf.format(date)
+                    env.LinuxServerShippingName = 'LinuxServerShipping_' + env.P4Stream.substring(13) + '_' + readfilevar + '_' + timestring
+                    echo env.LinuxServerShippingName
+                }
+                bat 'rename %UNREAL_BUILD_DIR% %LinuxServerShippingName%'
+
+                build job: 'RemoteBuildCompress', parameters: [
+                string(name: 'DATAPATH', value: 'E:\\'+env.LinuxServerShippingName),
+                string(name: 'ZIPNAME', value: env.LinuxServerShippingName+'.tar')], wait: false
+
+                bat 'python D:\\_BuildTools\\Python\\ReportSuccess.py LinuxServerShipping'
             }
-            bat 'rename %UNREAL_BUILD_DIR% %LinuxServerShippingName%'
-
-            build job: 'RemoteBuildCompress', parameters: [
-            string(name: 'DATAPATH', value: 'E:\\'+env.LinuxServerShippingName),
-            string(name: 'ZIPNAME', value: env.LinuxServerShippingName+'.tar')], wait: false
-
-            bat 'python D:\\_BuildTools\\Python\\ReportSuccess.py LinuxServerShipping'
         }
     }
 }
