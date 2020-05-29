@@ -16,7 +16,7 @@ pipeline {
         string(name: 'UNREAL_BUILD_DIR', defaultValue: 'E:\\', description: '')
 
         booleanParam(name: 'CLEARCOOK', defaultValue: false, description: '')
-
+        booleanParam(name: 'Build_COOK_CONTENT', defaultValue: true, description: '')
         booleanParam(name: 'Build_WIN_CLIENT_DEV', defaultValue: true, description: '')
         booleanParam(name: 'Build_LINUX_SERVER_DEV', defaultValue: true, description: '')
         booleanParam(name: 'Build_WIN_SERVER_DEV', defaultValue: true, description: '')
@@ -116,14 +116,14 @@ def call(body) {
         }
 
         stage('Build Editor') {
-            if(env.SkipP4Update=='false') {
+            if(env.Build_COOK_CONTENT=='true') {
                 bat '"%UNREAL_SOURCE_ENGINE_DIR%\\Build\\BatchFiles\\Build.bat" "ReDreamEditor" Win64 Development -WarningsAsErrors %UNREAL_GAME_PROJECT% || python D:\\_BuildTools\\Python\\ReportFailure.py BuildEditor'
                 bat 'python D:\\_BuildTools\\Python\\ReportSuccess.py BuildEditor'
             }
         }
 
         stage('Cook Content') {
-            if(env.SkipP4Update=='false') {
+            if(env.Build_COOK_CONTENT=='true') {
             bat '''
                 if "%CLEARCOOK%"=="true" (rmdir /s/q %P4RootDir%\\Game\\ReDream\\Saved\\Cooked)
 
