@@ -64,7 +64,7 @@ def call(body) {
         env.UNREAL_GAME_PROJECT = env.P4RootDir + '\\Game\\' + env.UNREAL_PROJECT_NAME + '\\' + env.UNREAL_PROJECT_NAME + '.uproject'
         env.UNREAL_SOURCE_ENGINE_DIR = env.P4RootDir + '\\Game\\Engine'
         env.UNREAL_COOK_LOG_PATH = env.UNREAL_SOURCE_ENGINE_DIR + '\\Programs\\AutomationTool\\Saved\\Logs\\Log.txt'
-        env.UNREAL_BUILD_WORKDIR = env.UNREAL_BUILD_DIR + '\\' + env.UNREAL_PROJECT_NAME + '_BuildingDir'
+        env.UNREAL_BUILD_WORKDIR = env.UNREAL_BUILD_DIR + env.UNREAL_PROJECT_NAME + '_BuildingDir'
         echo env.UNREAL_GAME_PROJECT
         echo env.UNREAL_SOURCE_ENGINE_DIR
         echo env.UNREAL_COOK_LOG_PATH
