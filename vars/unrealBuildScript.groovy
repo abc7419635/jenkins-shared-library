@@ -56,7 +56,7 @@ def call(body) {
     node('RemoteBuildPC') {
         stage('Test') {
             env.UNREAL_GAME_PROJECT = env.P4RootDir + '\\Game\\' + env.UNREAL_PROJECT_NAME + '\\' + env.UNREAL_PROJECT_NAME + '.uproject'
-            env.UNREAL_SOURCECODE_DIR = env.P4RootDir + '\\Game\\'
+            env.UNREAL_SOURCECODE_DIR = env.P4RootDir + '\\Game'
             echo env.UNREAL_GAME_PROJECT
             echo env.UNREAL_SOURCECODE_DIR
         }
