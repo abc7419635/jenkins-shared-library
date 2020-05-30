@@ -31,7 +31,7 @@ pipeline {
 
                 script {
                     if(env.Refresh=='false') {
-                        unrealBuildScript()
+                        allUnrealBuildScript()
                     }
                 }
             }
@@ -41,7 +41,7 @@ pipeline {
     //post {
     //    failure {
     //        script {
-    //            unrealBuildScript.buildfailure()
+    //            allUnrealBuildScript.buildfailure()
     //        }
     //    }
     //}
@@ -52,6 +52,38 @@ import java.text.SimpleDateFormat
 
 def buildfailure() {
     println 'error error error error error'
+}
+
+def increaseVersion() {
+    stage('Increase Version') {
+        if(env.SkipP4Update=='false') {
+            bat '''
+                rmdir /s/q %UNREAL_BUILD_WORKDIR%
+                md %UNREAL_BUILD_WORKDIR%
+
+                echo %P4_CHANGELIST% > "D:\\_BuildTools\\temp\\ContentVersion.txt"
+
+                set P4USER=%P4_USER%
+                set P4PASSWD=%P4_TICKET%
+                set P4PORT=%P4_PORT%
+                set P4CLIENT=%P4_CLIENT%
+
+                for /F %%i IN (D:\\_BuildTools\\temp\\ContentVersion.txt) DO (
+                set ContentVersion=%%i
+                )
+
+                set CheckOutFile=%P4_ROOT%\\Game\\ReDream\\Config\\DefaultGame.ini
+                p4 edit -c default %CheckOutFile%
+                %UNREAL_SOURCE_ENGINE_DIR%\\Binaries\\ThirdParty\\Python\\Win64\\python.exe D:\\_BuildTools\\Python\\configReaderV3.py %BUILD_ID% %ContentVersion% %CheckOutFile%
+                p4 submit -d "[AutoBuild] Auto Increase Version %BUILD_ID% ContentVer:%ContentVersion%" -f revertunchanged
+
+                echo %BUILD_ID% > "D:\\_BuildTools\\temp\\BuildVersion.txt"
+                '''
+        }
+        else {
+            echo 'Skip Sync Perforce'
+        }
+    }
 }
 
 def call(body) {
@@ -85,35 +117,7 @@ def call(body) {
             }
         }
 
-        stage('Increase Version') {
-            if(env.SkipP4Update=='false') {
-                bat '''
-                    rmdir /s/q %UNREAL_BUILD_WORKDIR%
-                    md %UNREAL_BUILD_WORKDIR%
-
-                    echo %P4_CHANGELIST% > "D:\\_BuildTools\\temp\\ContentVersion.txt"
-
-                    set P4USER=%P4_USER%
-                    set P4PASSWD=%P4_TICKET%
-                    set P4PORT=%P4_PORT%
-                    set P4CLIENT=%P4_CLIENT%
-
-                    for /F %%i IN (D:\\_BuildTools\\temp\\ContentVersion.txt) DO (
-                    set ContentVersion=%%i
-                    )
-
-                    set CheckOutFile=%P4_ROOT%\\Game\\ReDream\\Config\\DefaultGame.ini
-                    p4 edit -c default %CheckOutFile%
-                    %UNREAL_SOURCE_ENGINE_DIR%\\Binaries\\ThirdParty\\Python\\Win64\\python.exe D:\\_BuildTools\\Python\\configReaderV3.py %BUILD_ID% %ContentVersion% %CheckOutFile%
-                    p4 submit -d "[AutoBuild] Auto Increase Version %BUILD_ID% ContentVer:%ContentVersion%" -f revertunchanged
-
-                    echo %BUILD_ID% > "D:\\_BuildTools\\temp\\BuildVersion.txt"
-                    '''
-            }
-            else {
-                echo 'Skip Sync Perforce'
-            }
-        }
+        increaseVersion();
 
         stage('Build Editor') {
             if(env.Build_COOK_CONTENT=='true') {
