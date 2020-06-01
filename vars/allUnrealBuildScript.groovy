@@ -323,7 +323,7 @@ def call(body) {
                 string(name: 'DATAPATH', value: env.UNREAL_BUILD_DIR+env.WindowsClientShippingName),
                 string(name: 'ZIPNAME', value: env.WindowsClientShippingName)], wait: false
 
-                build job: 'SteamDeploy', parameters: [string(name: 'GAME_PATH', value: env.UNREAL_BUILD_DIR+env.WindowsClientDevName),
+                build job: 'SteamDeploy', parameters: [string(name: 'GAME_PATH', value: env.UNREAL_BUILD_DIR+env.WindowsClientShippingName),
                 string(name: 'ALIVE_BRANCH', value: 'shipping')], wait: false
 
                 bat 'python D:\\_BuildTools\\Python\\ReportSuccess.py WindowsClientShipping'
